@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+
+use warnings;
+
+use utf8;
+use LTXSVG::XHTML;
+use IO::Handle;
+use Getopt::Long qw/:config no_ignore_case bundling/;
+
+my $outputName;
+my $preambleName;
+my $fontSize='10pt';
+GetOptions(
+	'o|output-file=s'=>\$outputName,
+	'p|preamble-file=s'=>\$preambleName,
+	'font-size=s'=>\$fontSize,
+	);
+
+my $inputName=shift;
+undef $outputName if defined $outputName and $outputName eq '-';
+
+my $preamble=<<'__TEX__';
+%&latex
+\documentclass{article}
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{stix}
+\usepackage{amsmath}
+\usepackage{xcolor}
+__TEX__
+
+if(defined $preambleName)
+{
+	open my $preambleFile, '<', $preambleName
+		or die "Can not open preamble file “$preambleName”: $!";
+	while(<$preambleFile>)
+	{
+		$preamble.=$_;
+	}
+}
+
+my $ltxsvg=LTXSVG::XHTML->new(preamble=>$preamble, fontSize=>$fontSize);
+
+$ltxsvg->convertFile($inputName, $outputName);
+
+__END__
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+ltxsvg - converts LaTeX formulae embedded within XHTML file to SVG format
+
+=head1 SYNOPSIS
+
+ltxsvg [ I<option>... ] I<input_file>
+
+=head1 DESCRIPTION
+
+B<ltxsvg> is intended to be used as preprocessor converting LaTeX formulae
+embedded within XHTML file to SVG format.  The preprocessed documents can be
+browsed in any SVG-capable browser without use of tools such as B<MathJax>.
+
+The program looks for any occurrence of B<E<lt>mathE<gt>> or
+B<E<lt>displayE<gt>> elements bound to the custom namespace
+B<"https://github.com/urbic/ltxsvg"> in the given XHTML document. The text
+content of these elements prepended with LaTeX preamble is passed to
+L<latex(1)>. Then the DVI output from L<latex(1)> is passed to L<dvisvgm(1)>.
+The SVG output of L<dvisvgm(1)> is wrapped into XHTML B<div> element, whose
+attributes serve to proper resize SVG content and to align it on the baseline
+of the surrounding text. After all the resulting B<E<lt>divE<gt>> wrapper
+replaces the original B<math> or B<display> element.
+
+The B<E<lt>divE<gt>> wrappers are provided with B<class> attributes, either
+B<"ltxsvg-math"> or B<"ltx-display">, which can serve to styling or scripting
+purposes.
+
+The text characters in the resulting SVG are rendered using SVG
+B<E<lt>pathE<gt>> elements. Since the same characters are usually found many
+times within the document, their repeated occurrences are replaced by
+B<E<lt>useE<gt>> elements linked to corresponding B<E<lt>pathE<gt>> elements.
+This approach can significally reduce the size of the resulting file.
+
+The program performs some mangling on the B<id> attributes in SVG elements to
+prevent their collisions.
+
+=head1 OPTIONS
+
+=over
+
+=item B<-o>, B<--output-file> I<output_file>
+
+The name of the output file. With no I<output_file> or when I<output_file> is
+B<-> the result is redirected to the standard output.
+
+=item B<-p>, B<--preamble-file> I<preamble_file>
+
+The name of the file containing the LaTeX preamble. When not given, the
+following preamble is assumed:
+
+	%&latex
+	\documentclass{article}
+	\usepackage[russian]{babel}
+	\usepackage[utf8]{inputenc}
+	\usepackage{stix}
+	\usepackage{amsmath}
+	\usepackage{xcolor}
+
+=item I<input_file>
+
+The name of the input file.
+
+=back
+
+=head1 SEE ALSO
+
+L<latex(1)>, L<dvisvgm(1)>.
+
+=head1 LICENSE
+
+zlib/png.
+
+=head1 AUTHOR
+
+B<ltxsvg> was written by Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
+
+=cut
