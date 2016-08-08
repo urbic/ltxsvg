@@ -1,5 +1,9 @@
 # **ltxsvg**
 
+## Synopsis
+
+**ltxsvg** [ _option…_ ] _input_file_
+
 ## Description
 
 **ltxsvg** is intended to be used as preprocessor converting LaTeX formulae
@@ -27,3 +31,9 @@ the size of the resulting file.
 
 The program performs some mangling on the `id` attributes in SVG elements to
 prevent their collisions.
+
+## Options
+
+* **`-o`**, **`--output-file`** _`output_file`_
+
+
