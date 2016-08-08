@@ -1,10 +1,10 @@
-# ltxsvg
+# **ltxsvg**
 
 ## Description
 
 **ltxsvg** is intended to be used as preprocessor converting LaTeX formulae
 embedded within XHTML file to SVG format. The preprocessed documents can be
-browsed in any SVG-capable browser without use of tools such as **MathJax**.
+browsed in any SVG-capable browser without use of tools such as **[MathJax](http://mathjax.org)**.
 
 The program looks for any occurrence of `<math>` or `<display>` elements
 bound to the custom namespace `"https://github.com/urbic/ltxsvg"` in the
