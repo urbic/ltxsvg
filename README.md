@@ -45,7 +45,7 @@ The name of the output file. With no _`output_file`_ or when _`output_file`_ is
 The name of the file containing the LaTeX preamble. When not given, the
 following preamble is assumed:
 
-```
+```latex
 %&latex
 \documentclass{article}
 \usepackage[russian]{babel}
