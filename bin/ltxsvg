@@ -67,10 +67,11 @@ B<E<lt>displayE<gt>> elements bound to the custom namespace
 B<"https://github.com/urbic/ltxsvg"> in the given XHTML document. The text
 content of these elements prepended with LaTeX preamble is passed to
 L<latex(1)>. Then the DVI output from L<latex(1)> is passed to L<dvisvgm(1)>.
-The SVG output of L<dvisvgm(1)> is wrapped into XHTML B<div> element, whose
-attributes serve to proper resize SVG content and to align it on the baseline
-of the surrounding text. After all the resulting B<E<lt>divE<gt>> wrapper
-replaces the original B<math> or B<display> element.
+The SVG output of L<dvisvgm(1)> is wrapped into XHTML B<E<lt>divE<gt>> element,
+whose attributes serve to proper resize SVG content and to align it on the
+baseline of the surrounding text. After all the resulting B<E<lt>divE<gt>>
+wrapper replaces the original B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>>
+element.
 
 The B<E<lt>divE<gt>> wrappers are provided with B<class> attributes, either
 B<"ltxsvg-math"> or B<"ltx-display">, which can serve to styling or scripting
