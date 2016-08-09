@@ -55,11 +55,11 @@ B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>>:
 
 =over
 
-=item B<x>, B<y>
+=item * B<x>, B<y>
 
 The coordinates of the formula reference point.
 
-=item B<placement>
+=item * B<placement>
 
 This attribute specifies the reference point position in the rendered formula.
 Valid values are:
@@ -120,12 +120,12 @@ accelerate its rendering in a browser.
 
 =over
 
-=item B<-o>, B<--output-file> I<output_file>
+=item * B<-o>, B<--output-file> I<output_file>
 
 The name of the output file. With no I<output_file> or when I<output_file> is
 B<-> the result is redirected to the standard output.
 
-=item B<-p>, B<--preamble-file> I<preamble_file>
+=item * B<-p>, B<--preamble-file> I<preamble_file>
 
 The name of the file containing the LaTeX preamble. When not given, the
 following preamble is assumed:
@@ -137,11 +137,11 @@ following preamble is assumed:
 	\usepackage{amsmath}
 	\begin{document}
 
-=item B<-s>, B<--scale> I<factor>
+=item * B<-s>, B<--scale> I<factor>
 
 Scale the SVG formulae by the given I<factor>.
 
-=item I<input_file>
+=item * I<input_file>
 
 The name of the input file.
 
