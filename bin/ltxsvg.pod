@@ -66,41 +66,41 @@ Valid values are:
 
 =over
 
-=item B<"right">
+=item * B<"right">
 
 in the middle of the left edge.
 
-=item B<"topRight">
+=item * B<"topRight">
 
 in the lower left corner.
 
-=item B<"top">
+=item * B<"top">
 
 in the middle of the upper edge.
 
-=item B<"topLeft">
+=item * B<"topLeft">
 
 in the lower right corner.
 
-=item B<"left">
+=item * B<"left">
 
 in the middle of the right edge.
 
-=item B<"bottomLeft">
+=item * B<"bottomLeft">
 
 in the upper right corner.
 
-=item B<"bottom">
+=item * B<"bottom">
 
 in the middle of the upper edge.
 
-=item B<"bottomRight">
+=item * B<"bottomRight">
 
 in the upper left corner.
 
 =back
 
-=item B<gap>
+=item * B<gap>
 
 The additional gap between the formula and the reference point. The default
 value is 3.
