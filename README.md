@@ -16,12 +16,12 @@ to the custom namespace `"https://github.com/urbic/ltxsvg"` in the given XHTML
 document. The text content of these elements prepended with LaTeX preamble is
 passed to **latex**. Then the DVI output from **latex** is passed to
 **dvisvgm**. The SVG output of **dvisvgm** is wrapped into XHTML `<div>`
-element, whose attributes serve to proper resize SVG content and to align it on
+element, whose attributes serve to properly scale SVG content and to align it on
 the baseline of the surrounding text. After all the resulting `<div>` wrapper
 replaces the original `<math>` or `<display>` element.
 
 The `<div>` wrappers are provided with `class` attributes, either
-`"ltxsvg-math"` or `"ltx-display"`, which can serve to styling or scripting
+`"ltxsvg-math"` or `"ltxsvg-display"`, which can serve to styling or scripting
 purposes.
 
 The text characters in the resulting SVG are rendered using SVG `<path>`

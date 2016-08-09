@@ -3,44 +3,32 @@
 use warnings;
 
 use utf8;
-use LTXSVG::XHTML;
+use LTXSVG;
 use IO::Handle;
 use Getopt::Long qw/:config no_ignore_case bundling/;
 
-my $outputName;
-my $preambleName;
-my $fontSize='10pt';
+my (%options, $outputName, $preambleName);
 GetOptions(
 	'o|output-file=s'=>\$outputName,
 	'p|preamble-file=s'=>\$preambleName,
-	'font-size=s'=>\$fontSize,
+	's|scale=f'=>\$options{scale},
 	);
 
 my $inputName=shift;
 undef $outputName if defined $outputName and $outputName eq '-';
 
-my $preamble=<<'__TEX__';
-%&latex
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{stix}
-\usepackage{amsmath}
-\usepackage{xcolor}
-__TEX__
-
 if(defined $preambleName)
 {
 	open my $preambleFile, '<', $preambleName
 		or die "Can not open preamble file “$preambleName”: $!";
-	while(<$preambleFile>)
-	{
-		$preamble.=$_;
-	}
+	my $preamble;
+	$preamble.=$_ while <$preambleFile>;
+	$options{preamble}=$preamble;
 }
 
-my $ltxsvg=LTXSVG::XHTML->new(preamble=>$preamble, fontSize=>$fontSize);
+my $ltxsvg=LTXSVG->new(%options);
 
-$ltxsvg->convertFile($inputName, $outputName);
+$ltxsvg->processFile($inputName, $outputName);
 
 __END__
 =pod
@@ -67,13 +55,13 @@ B<"https://github.com/urbic/ltxsvg"> in the given XHTML document. The text
 content of these elements prepended with LaTeX preamble is passed to
 L<latex(1)>. Then the DVI output from L<latex(1)> is passed to L<dvisvgm(1)>.
 The SVG output of L<dvisvgm(1)> is wrapped into XHTML B<E<lt>divE<gt>> element,
-whose attributes serve to proper resize SVG content and to align it on the
+whose attributes serve to properly scale SVG content and to align it on the
 baseline of the surrounding text. After all the resulting B<E<lt>divE<gt>>
 wrapper replaces the original B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>>
 element.
 
 The B<E<lt>divE<gt>> wrappers are provided with B<class> attributes, either
-B<"ltxsvg-math"> or B<"ltx-display">, which can serve to styling or scripting
+B<"ltxsvg-math"> or B<"ltxsvg-display">, which can serve to styling or scripting
 purposes.
 
 The text characters in the resulting SVG are rendered using SVG
@@ -104,7 +92,10 @@ following preamble is assumed:
 	\usepackage[utf8]{inputenc}
 	\usepackage{stix}
 	\usepackage{amsmath}
-	\usepackage{xcolor}
+
+=item B<-s>, B<--scale> I<factor>
+
+Scale the SVG formulae by the given I<factor>.
 
 =item I<input_file>
 
@@ -116,12 +107,14 @@ The name of the input file.
 
 L<latex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.
 
+Project site: L<https://github.com/urbic/ltxsvg>.
+
 =head1 LICENSE
 
 zlib/png.
 
 =head1 AUTHOR
 
-B<ltxsvg> was written by Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
+Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
 
 =cut
