@@ -29,3 +29,168 @@ if(defined $preambleName)
 my $ltxsvg=LTXSVG->new(%options);
 
 $ltxsvg->processFile($inputName, $outputName);
+__END__
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+ltxsvg - converts LaTeX formulae embedded within XHTML file to SVG format
+
+=head1 SYNOPSIS
+
+ltxsvg [ I<option>... ] I<input_file>
+
+=head1 DESCRIPTION
+
+B<ltxsvg> is intended to be used as preprocessor converting LaTeX formulae
+embedded within XML file to SVG format. The program uses an approach similar to
+one that applied in MetaPost.
+
+The program looks for any occurrence of B<E<lt>mathE<gt>> or
+B<E<lt>displayE<gt>> elements bound to the custom namespace
+B<"https://github.com/urbic/ltxsvg"> in the given XML document. The text
+content of these elements prepended with LaTeX preamble is passed to
+L<latex(1)>. Then the DVI output from L<latex(1)> is passed to L<dvisvgm(1)>.
+The SVG output of L<dvisvgm(1)> replaces the original B<E<lt>mathE<gt>> or
+B<E<lt>displayE<gt>> element. The program performs some mangling on the B<id>
+attributes in SVG elements to prevent their collisions.
+
+B<ltxsvg> takes a special care when the parent element of B<E<lt>mathE<gt>> or
+B<E<lt>displayE<gt>> element belongs to XHTML or SVG namespace. See L</"XHTML
+Input"> and L</"SVG Input"> sections for details.
+
+The preprocessed XHTML or SVG documents can be browsed in any SVG-capable
+browser without use of tools such as B<MathJax>.
+
+=head2 XHTML Input
+
+When the parent of B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>> element belongs to
+XHTML namespace, B<ltxsvg> performs additional manipulations on the SVG
+representation of the formula. The B<E<lt>svgE<gt>> element is wrapped into
+XHTML B<E<lt>divE<gt>> element, whose attributes serve to align rendered
+formula on the baseline of the surrounding text. The B<width> and the B<heigth>
+attributes of the SVG element are expressed in relative units, so the size of
+the rendered formula is properly adjusted to the size of the surrounding text.
+
+The B<E<lt>divE<gt>> wrapper is provided with B<class> attributes, either
+B<"ltxsvg-math"> or B<"ltxsvg-display">, depending on whether the formula is
+contained in B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>> element. The B<class>
+attribute can serve to styling or scripting purposes.
+
+=head2 SVG Input
+
+When the B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>> element is the child of SVG
+element, B<ltxsvg> takes into account the attributes specified in
+B<E<lt>mathE<gt>> or B<E<lt>displayE<gt>>:
+
+=over
+
+=item B<x>, B<y>
+
+The coordinates of the formula reference point.
+
+=item B<placement>
+
+This attribute specifies the reference point position in the rendered formula.
+Valid values are:
+
+=over
+
+=item B<"right">
+
+in the middle of the left edge.
+
+=item B<"topRight">
+
+in the lower left corner.
+
+=item B<"top">
+
+in the middle of the upper edge.
+
+=item B<"topLeft">
+
+in the lower right corner.
+
+=item B<"left">
+
+in the middle of the right edge.
+
+=item B<"bottomLeft">
+
+in the upper right corner.
+
+=item B<"bottom">
+
+in the middle of the upper edge.
+
+=item B<"bottomRight">
+
+in the upper left corner.
+
+=back
+
+=item B<gap>
+
+The additional gap between the formula and the reference point. The default
+value is B<"3">.
+
+=back
+
+=head2 Optimization
+
+The text characters in the resulting SVG are rendered using SVG
+B<E<lt>pathE<gt>> elements. Since the same characters are usually found many
+times within the document, their repeated occurrences are replaced by
+B<E<lt>useE<gt>> elements linked to corresponding B<E<lt>pathE<gt>> elements.
+This approach can significally reduce the size of the resulting file and
+accelerate its rendering in a browser.
+
+=head1 OPTIONS
+
+=over
+
+=item B<-o>, B<--output-file> I<output_file>
+
+The name of the output file. With no I<output_file> or when I<output_file> is
+B<-> the result is redirected to the standard output.
+
+=item B<-p>, B<--preamble-file> I<preamble_file>
+
+The name of the file containing the LaTeX preamble. When not given, the
+following preamble is assumed:
+
+	%&latex
+	\documentclass{article}
+	\usepackage[utf8]{inputenc}
+	\usepackage{stix}
+	\usepackage{amsmath}
+	\begin{document}
+
+=item B<-s>, B<--scale> I<factor>
+
+Scale the SVG formulae by the given I<factor>.
+
+=item I<input_file>
+
+The name of the input file.
+
+=back
+
+=head1 SEE ALSO
+
+L<latex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.
+
+Project site: L<https://github.com/urbic/ltxsvg>.
+
+=head1 LICENSE
+
+zlib/png.
+
+=head1 AUTHOR
+
+Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
+
+=cut

@@ -19,6 +19,7 @@ Module::Build->new
 				'File::Spec'=>'3.40',
 				'File::Temp'=>'0.23',
 				'File::Basename'=>'2.84',
+				'Digest::MD5'=>'2.52',
 			},
 		build_requires=>
 			{

@@ -6,6 +6,7 @@ use File::Spec;
 use File::Temp;
 use File::Basename;
 use XML::LibXML;
+use Digest::MD5;
 use feature 'state';
 
 our $VERSION=v0.0.6;
@@ -24,6 +25,14 @@ use constant
 \usepackage{amsmath}
 \begin{document}
 __TEX__
+		TEX_SUPPORT=><<'__TEX__',
+\makeatletter
+\gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
+\dimen\@ne=\ht\z@\dimen\tw@=\dp\z@\setbox\z@=\hbox{\box\z@\vrule width\@ne sp
+\ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi}\ht\z@=\z@\dp\z@=\z@\box\z@}}
+\makeatother
+__TEX__
+		
 		LATEX=>'pdftex',
 		DVISVGM=>'dvisvgm',
 		SQRT2=>sqrt 2,
@@ -48,18 +57,16 @@ sub makeSVG($;%)
 	my $display=$opts{display}//0;
 
 	my ($file, $texName)=File::Temp::tempfile('ltxsvg-XXXXX', SUFFIX=>'.tex');
-	$file->binmode(':utf8');
 	my $baseName=File::Basename::basename($texName, '.tex');
 
-	$file->print($self->{preamble}.<<'__TEX__');
-\makeatletter
-\gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
-\dimen\@ne=\ht\z@\dimen\tw@=\dp\z@\setbox\z@=\hbox{\box\z@\vrule width\@ne sp
-\ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi}\ht\z@=\z@\dp\z@=\z@\box\z@}}
-\makeatother
-__TEX__
+	my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
+			.($display? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
 
-	$file->print("\\ltxsvgshipout{\$".($display? '\displaystyle ': '')."$tex\$}\n\\end{document}\n");
+	my $md5=Digest::MD5::md5($texCode);
+	
+	$file->binmode(':utf8');
+	$file->print($texCode);
+	$file->close;
 
 	system "$self->{latex} --parse-first-line --interaction=batchmode \"$baseName\" >".File::Spec->devnull
 		and die "Error during LaTeXing. See $baseName.log for explanation";
