@@ -174,7 +174,7 @@ sub processDocument($)
 			@{$doc->documentElement->getElementsByTagNameNS(NS_L2S, 'display')})
 	{
 		my %opts=(display=>($math->localName eq 'display'));
-		for(qw/x y placement offset/)
+		for(qw/x y placement gap/)
 		{
 			$opts{$_}=$math->getAttribute($_) if $math->getAttribute($_);
 		}
@@ -257,39 +257,39 @@ sub wrapForSVG($;%)
 	#$svgRoot->setNodeName('g');
 	if($opts{placement})
 	{
-		my $offset=($opts{offset}//3)*$self->{scale};
+		my $gap=($opts{gap}//3)*$self->{scale};
 		my ($x, $y);
 		if($opts{placement} eq 'bottom')
 		{
-			($x, $y)=($opts{x}-$width/2, $opts{y}+$offset);
+			($x, $y)=($opts{x}-$width/2, $opts{y}+$gap);
 		}
 		elsif($opts{placement} eq 'top')
 		{
-			($x, $y)=($opts{x}-$width/2, $opts{y}-$height-$offset);
+			($x, $y)=($opts{x}-$width/2, $opts{y}-$height-$gap);
 		}
 		elsif($opts{placement} eq 'left')
 		{
-			($x, $y)=($opts{x}-$width-$offset, $opts{y}-$height/2);
+			($x, $y)=($opts{x}-$width-$gap, $opts{y}-$height/2);
 		}
 		elsif($opts{placement} eq 'right')
 		{
-			($x, $y)=($opts{x}+$offset, $opts{y}-$height/2);
+			($x, $y)=($opts{x}+$gap, $opts{y}-$height/2);
 		}
 		elsif($opts{placement} eq 'topRight')
 		{
-			($x, $y)=($opts{x}+$offset/SQRT2, $opts{y}-$height-$offset/SQRT2);
+			($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
 		}
 		elsif($opts{placement} eq 'topLeft')
 		{
-			($x, $y)=($opts{x}-$width-$offset/SQRT2, $opts{y}-$height-$offset/SQRT2);
+			($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
 		}
 		elsif($opts{placement} eq 'bottomLeft')
 		{
-			($x, $y)=($opts{x}-$width-$offset/SQRT2, $opts{y}+$offset/SQRT2);
+			($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}+$gap/SQRT2);
 		}
 		elsif($opts{placement} eq 'bottomRight')
 		{
-			($x, $y)=($opts{x}+$offset/SQRT2, $opts{y}+$offset/SQRT2);
+			($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}+$gap/SQRT2);
 		}
 		elsif($opts{placement} eq 'center')
 		{
