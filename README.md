@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-**ltxsvg** [ _option…_ ] _input_file_
+**`ltxsvg`** `[` _`option…`_ `]` _`input_file`_
 
 ## Description
 
@@ -16,7 +16,7 @@ to the custom namespace `"https://github.com/urbic/ltxsvg"` in the given XHTML
 document. The text content of these elements prepended with LaTeX preamble is
 passed to **latex**. Then the DVI output from **latex** is passed to
 **dvisvgm**. The SVG output of **dvisvgm** is wrapped into XHTML `<div>`
-element, whose attributes serve to properly scale SVG content and to align it on
+element, whose attributes serve for properly scale SVG content and to align it on
 the baseline of the surrounding text. After all the resulting `<div>` wrapper
 replaces the original `<math>` or `<display>` element.
 
@@ -53,6 +53,10 @@ following preamble is assumed:
 \usepackage{amsmath}
 \usepackage{xcolor}
 ```
+
+* **`-s`**, **`--scale`** _`factor`_
+
+Scale the SVG formulae by the given _`factor`_.
 
 * _`input_file`_
 
