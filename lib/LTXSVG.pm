@@ -364,6 +364,7 @@ The default value is
 	\usepackage[utf8]{inputenc}
 	\usepackage{stix}
 	\usepackage{amsmath}
+	\begin{document}
 
 If the first line in preamble starts with "%&" characters, the rest of the line
 is used as the name of the format.

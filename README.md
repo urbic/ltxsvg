@@ -52,6 +52,7 @@ following preamble is assumed:
 \usepackage{stix}
 \usepackage{amsmath}
 \usepackage{xcolor}
+\begin{document}
 ```
 
 * **`-s`**, **`--scale`** _`factor`_

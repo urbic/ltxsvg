@@ -92,6 +92,7 @@ following preamble is assumed:
 	\usepackage[utf8]{inputenc}
 	\usepackage{stix}
 	\usepackage{amsmath}
+	\begin{document}
 
 =item B<-s>, B<--scale> I<factor>
 
