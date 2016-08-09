@@ -48,7 +48,6 @@ following preamble is assumed:
 ```latex
 %&latex
 \documentclass{article}
-\usepackage[russian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{stix}
 \usepackage{amsmath}

@@ -22,7 +22,6 @@ undef $outputName if defined $outputName and $outputName eq '-';
 my $preamble=<<'__TEX__';
 %&latex
 \documentclass{article}
-\usepackage[russian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{stix}
 \usepackage{amsmath}
@@ -102,7 +101,6 @@ following preamble is assumed:
 
 	%&latex
 	\documentclass{article}
-	\usepackage[russian]{babel}
 	\usepackage[utf8]{inputenc}
 	\usepackage{stix}
 	\usepackage{amsmath}
@@ -116,7 +114,7 @@ The name of the input file.
 
 =head1 SEE ALSO
 
-L<latex(1)>, L<dvisvgm(1)>.
+L<latex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.
 
 =head1 LICENSE
 

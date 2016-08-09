@@ -8,7 +8,7 @@ use File::Basename;
 use XML::LibXML;
 use feature 'state';
 
-our $VERSION='0.0.4';
+our $VERSION=v0.0.5;
 
 use constant
 	{
@@ -20,7 +20,6 @@ use constant
 		PREAMBLE=><<'__TEX__',
 %&latex
 \documentclass{article}
-\usepackage[russian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{stix}
 \usepackage{amsmath}
@@ -125,3 +124,90 @@ sub _generateId
 }
 
 return 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+LTXSVG - convert LaTeX formulae to SVG documents
+
+=head1 SYNOPSIS
+
+	use LTXSVG;
+
+	my $ltxsvg=LTXSVG->new;
+	my $svgdom=$ltxsvg->makeSVG('\frac{\pi^2}6=\sum_{k=1}^\infty k^{-2}');
+	print $svgdom->toString;
+
+=head1 DESCRIPTION
+
+The B<LTXSVG> package allows to convert LaTeX formulae to SVG images.
+
+B<LTXSVG> converter creates a TeX source document for each formula, translates
+it to DVI format and converts the resulting DVI document to SVG format by
+dvisvgm(1) program.
+
+=head1 API
+
+=over
+
+=item LTXSVG-E<gt>new(I<%options>)
+
+Returns a new LaTeX to SVG converter. This method takes a hash containing the
+configuration options. Valid options are:
+
+=over
+
+=item B<preamble>
+
+The LaTeX preamble i.E<nbsp>e. the stuff preceding "\begin{document}" command,
+The default value is
+
+	%&latex
+	\documentclass{article}
+	\usepackage[utf8]{inputenc}
+	\usepackage{stix}
+	\usepackage{amsmath}
+
+If the first line in preamble starts with "%&" characters, the rest of the line
+is used as the name of the format.
+
+=item B<fontSize>
+
+The font size, the default value is "10pt". The font size specification
+consists of a positive integer or floating point number and a unit (without any
+whitespace in between). Valid units are "in" (inch), "pt" (point), "cm"
+(centimeter), "mm" (millimeter), "pc" (pica), "px" (pixel).
+
+=item B<latex>
+
+The L<latex(1)> invocation command, "pdftex" by default.
+
+=item B<dvisvgm>
+
+The L<dvisvgm(1)> invocation command, "dvisvgm" by default.
+
+=back
+
+=item I<$ltxsvg>-E<gt>makeSVG(I<$formula>, [I<$display>])
+
+Returns an L<XML::LibXML::Document(3pm)> object containing the representation
+of the SVG document.
+
+=back
+
+=head1 SEE ALSO
+
+L<latex(1)>, L<dvisvgm(1)>.
+
+=head1 LICENSE
+
+zlib/png.
+
+=head1 AUTHOR
+
+B<LTXSVG> was written by Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
+
+=cut

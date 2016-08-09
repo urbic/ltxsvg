@@ -6,7 +6,7 @@ Module::Build->new
 		dist_name=>'LTXSVG',
 		dist_version_from=>'lib/LTXSVG.pm',
 		dist_author=>'Anton Shvetz <tz@sectorb.msk.ru>',
-		abstract_from=>'lib/LTXSVG.pod',
+		abstract_from=>'lib/LTXSVG.pm',
 		#release_status=>'unstable',
 		license=>'Zlib',
 		create_license=>1,
