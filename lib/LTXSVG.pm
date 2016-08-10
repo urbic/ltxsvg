@@ -2,15 +2,15 @@ package LTXSVG;
 
 use strict;
 use IO::Handle;
-use File::Spec;
 use File::Basename;
 use Cwd;
 use XML::LibXML;
 use Digest::MD5;
 use Encode;
+use IO::CaptureOutput;
 use feature 'state';
 
-our $VERSION='1.01';
+our $VERSION='1.02';
 
 use constant
 	{
@@ -26,12 +26,19 @@ use constant
 \usepackage{amsmath}
 \begin{document}
 __TEX__
+#		TEX_SUPPORT=><<'__TEX__',
+#\makeatletter
+#\gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
+#\dimen\@ne=\ht\z@\dimen\tw@=\dp\z@\setbox\z@=\hbox{\box\z@
+#%\vrule width\@ne sp\ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi
+#}\ht\z@=\z@\dp\z@=\z@\box\z@}}
+#\makeatother
+#__TEX__
 		TEX_SUPPORT=><<'__TEX__',
-\makeatletter
+\catcode`\@11\relax
 \gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
-\dimen\@ne=\ht\z@\dimen\tw@=\dp\z@\setbox\z@=\hbox{\box\z@\vrule width\@ne sp
-\ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi}\ht\z@=\z@\dp\z@=\z@\box\z@}}
-\makeatother
+\setbox\z@=\hbox{\box\z@}\ht\z@=\z@\dp\z@=\z@\box\z@}}
+\catcode`\@12\relax
 __TEX__
 		TEX=>'pdftex',
 		DVISVGM=>'dvisvgm',
@@ -84,17 +91,30 @@ sub makeSVG($;%)
 		open my $file, '>:utf8', "$baseName.tex";
 		$file->print($texCode);
 	
-		my $texStatus=system "$self->{tex} --output-format=dvi --interaction=batchmode --parse-first-line \"$baseName\" >"
-				.File::Spec->devnull;
-		system $self->{dvisvgm}, '-v0', '-n', $baseName;
-		if($texStatus)
-		{
-			warn "Error during TeXing. See $baseName.log for explanation\n";
-		}
-		else
+		my (undef, undef, $texSuccess)=IO::CaptureOutput::capture_exec
+				(
+					$self->{tex},
+					'--output-format=dvi',
+					'--interaction=batchmode',
+					'--parse-first-line',
+					$baseName
+				);
+
+		warn "Error during TeX run. See $baseName.log for explanation\n"
+			unless $texSuccess;
+
+		my (undef, undef, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
+				(
+					$self->{dvisvgm},
+					'-v0',
+					'-n',
+					$baseName
+				);
+		if($texSuccess)
 		{
 			unlink "$baseName$_" for qw/.log .aux .dvi/;
 		}
+		warn "Error during dvisvgm run.\n" unless $dvisvgmSuccess;
 	}
 
 	my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
@@ -203,6 +223,7 @@ sub processDocument($)
 {
 	my $self=shift;
 	my $doc=shift;
+	$doc->documentElement->removeAttribute('xmlns:ltx');
 	for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
 			@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
 	{
@@ -254,23 +275,23 @@ sub wrapForXHTML($;%)
 	my $divElement=XML::LibXML::Element->new('div');
 	$divElement->setNamespace(NS_XHTML, '', 1);
 	my $svgRoot=$svgDoc->documentElement;
-	$svgRoot->setAttribute('width', ($viewBox[2]*$self->{scale}*.1).'em');
-	$svgRoot->setAttribute('height', ($viewBox[3]*$self->{scale}*.1).'em');
+	$svgRoot->setAttribute('width', sprintf('%.5fem', $viewBox[2]*$self->{scale}*.1));
+	$svgRoot->setAttribute('height', sprintf('%.5fem', $viewBox[3]*$self->{scale}*.1));
 	$divElement->appendChild($svgRoot);
 
 	my %css=$display?
 		(
 			'display'=>'block',
-			'margin-top'=>1.2*($self->{scale}).'em',
-			'margin-bottom'=>1.2*($self->{scale}).'em',
+			'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}),
+			'margin-bottom'=>sprintf('%.5fem', 1.2*$self->{scale}),
 			'text-align'=>'center',
 		):
 		(
 			'display'=>'inline-block',
 			'position'=>'relative',
-			'bottom'=>(-$vOffset).'em',
-			'margin-top'=>(-$vOffset).'em',
-			'margin-bottom'=>"${vOffset}em",
+			'bottom'=>sprintf('%.5fem', -$vOffset),
+			'margin-top'=>sprintf('%.5fem', -$vOffset),
+			'margin-bottom'=>sprintf('%.5fem', $vOffset),
 		);
 	my $css;
 	$css.="$_: $css{$_}; " for sort keys %css;

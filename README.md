@@ -27,7 +27,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
   **MetaPost**.
 
 - Optimization intended to reduce the size of the resuling file and to
-  accelerate its rendering in browser window.
+  accelerate its rendering in a browser window.
 
 - Caching the rendered formulae.
 
