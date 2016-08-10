@@ -8,7 +8,7 @@ construct. The **ltxsvg** uses **TeX** and **dvisvgm** to render the formulae.
 The program looks for any occurrence of `<math>` or `<display>` elements bound
 to the custom namespace `"https://github.com/urbic/ltxsvg"` in the given XML
 document and replaces it with the SVG rendering. The text content of these
-elements is interpreted as **TeX** formula.
+elements is interpreted as TeX formula.
 
 The preprocessed XHTML and SVG documents can be browsed in any SVG-capable
 browser without use of tools such as [**MathJax**](http://mathjax.org).
