@@ -35,7 +35,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 [Stokes’ theorem](examples/stokes.xml)
 
-![Stokes’ theorem](examples/stokes.svg):
+![Stokes’ theorem](examples/stokes.png)
 
 ## License
 
