@@ -10,7 +10,7 @@ use Digest::MD5;
 use Encode;
 use feature 'state';
 
-our $VERSION='1.00';
+our $VERSION='1.01';
 
 use constant
 	{
