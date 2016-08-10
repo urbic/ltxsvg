@@ -7,6 +7,7 @@ use File::Basename;
 use Cwd;
 use XML::LibXML;
 use Digest::MD5;
+use Encode;
 use feature 'state';
 
 our $VERSION='1.00';
@@ -58,7 +59,7 @@ sub makeSVG($;%)
 
 	my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
 			.($display? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
-	my $baseName=Digest::MD5::md5_hex($texCode);
+	my $baseName=Digest::MD5::md5_hex(Encode::encode_utf8($texCode));
 
 	my $cwd=getcwd;
 	chdir or die "Can not change to home directory: $!\n";
@@ -83,13 +84,21 @@ sub makeSVG($;%)
 		open my $file, '>:utf8', "$baseName.tex";
 		$file->print($texCode);
 	
-		system "$self->{tex} --output-format=dvi --interaction=batchmode --parse-first-line \"$baseName\" >"
-				.File::Spec->devnull
-			and warn "Error during LaTeXing. See $baseName.log for explanation\n";
+		my $texStatus=system "$self->{tex} --output-format=dvi --interaction=batchmode --parse-first-line \"$baseName\" >"
+				.File::Spec->devnull;
 		system $self->{dvisvgm}, '-v0', '-n', $baseName;
+		if($texStatus)
+		{
+			warn "Error during TeXing. See $baseName.log for explanation\n";
+		}
+		else
+		{
+			unlink "$baseName$_" for qw/.log .aux .dvi/;
+		}
 	}
 
 	my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
+
 	chdir $cwd;
 
 	#unlink "$baseName$_" for qw/.log .aux .tex .dvi .svg/;

@@ -189,6 +189,16 @@ The name of the input file.
 
 =back
 
+=head1 FILES
+
+=over
+
+=item B<~/.ltxsvg-cache>
+
+The cache directory.
+
+=back
+
 =head1 SEE ALSO
 
 L<tex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.

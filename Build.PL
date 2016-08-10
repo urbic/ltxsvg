@@ -20,6 +20,7 @@ Module::Build->new
 				'File::Basename'=>'2.84',
 				'Digest::MD5'=>'2.52',
 				'Cwd'=>'3.40',
+				'Encode'=>'2.49',
 			},
 		build_requires=>
 			{
