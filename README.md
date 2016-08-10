@@ -10,7 +10,7 @@ to the custom namespace `"https://github.com/urbic/ltxsvg"` in the given XML
 document and replaces it with the SVG rendering.
 
 The preprocessed XHTML and SVG documents can be browsed in any SVG-capable
-browser without use of tools such as [MathJax](http://mathjax.org).
+browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 ## Features
 
