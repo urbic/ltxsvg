@@ -17,9 +17,9 @@ Module::Build->new
 				'IO::Handle'=>'1.34',
 				'XML::LibXML'=>'2.0019',
 				'File::Spec'=>'3.40',
-				'File::Temp'=>'0.23',
 				'File::Basename'=>'2.84',
 				'Digest::MD5'=>'2.52',
+				'Cwd'=>'3.40',
 			},
 		build_requires=>
 			{

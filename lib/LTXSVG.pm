@@ -3,13 +3,13 @@ package LTXSVG;
 use strict;
 use IO::Handle;
 use File::Spec;
-use File::Temp;
 use File::Basename;
+use Cwd;
 use XML::LibXML;
 use Digest::MD5;
 use feature 'state';
 
-our $VERSION=v0.0.6;
+our $VERSION='1.00';
 
 use constant
 	{
@@ -32,10 +32,10 @@ __TEX__
 \ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi}\ht\z@=\z@\dp\z@=\z@\box\z@}}
 \makeatother
 __TEX__
-		
-		LATEX=>'pdftex',
+		TEX=>'pdftex',
 		DVISVGM=>'dvisvgm',
 		SQRT2=>sqrt 2,
+		CACHE_DIR=>'.ltxsvg-cache',
 	};
 
 sub new(%)
@@ -43,7 +43,7 @@ sub new(%)
 	my $class=shift;
 	my $self={@_};
 	$self->{preamble}//=PREAMBLE;
-	$self->{latex}//=LATEX;
+	$self->{tex}//=TEX;
 	$self->{dvisvgm}//=DVISVGM;
 	$self->{scale}//=1;
 	return bless $self, $class;
@@ -56,26 +56,43 @@ sub makeSVG($;%)
 	my %opts=@_;
 	my $display=$opts{display}//0;
 
-	my ($file, $texName)=File::Temp::tempfile('ltxsvg-XXXXX', SUFFIX=>'.tex');
-	my $baseName=File::Basename::basename($texName, '.tex');
-
 	my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
 			.($display? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
+	my $baseName=Digest::MD5::md5_hex($texCode);
 
-	my $md5=Digest::MD5::md5($texCode);
-	
-	$file->binmode(':utf8');
-	$file->print($texCode);
-	$file->close;
+	my $cwd=getcwd;
+	chdir or die "Can not change to home directory: $!\n";
+	mkdir CACHE_DIR or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
+		if !-d CACHE_DIR;
+	chdir CACHE_DIR or die "Can not change to cache directory “".CACHE_DIR."”: $!\n";
 
-	system "$self->{latex} --parse-first-line --interaction=batchmode \"$baseName\" >".File::Spec->devnull
-		and die "Error during LaTeXing. See $baseName.log for explanation";
-	#system $self->{dvisvgm}, "-Z$self->{scale}", '-v0', '--no-fonts', $baseName;
-	system $self->{dvisvgm}, '-v0', '--no-fonts', $baseName;
+	my $needToCache=0;
+	unless(-f "$baseName.tex")
+	{
+		$needToCache=1;
+	}
+	else
+	{
+		open my $file, '<:utf8', "$baseName.tex";
+		read $file, my $cachedTeXCode, -s $file;
+		$needToCache=($cachedTeXCode ne $texCode);
+	}
+
+	if($needToCache)
+	{
+		open my $file, '>:utf8', "$baseName.tex";
+		$file->print($texCode);
 	
+		system "$self->{tex} --output-format=dvi --interaction=batchmode --parse-first-line \"$baseName\" >"
+				.File::Spec->devnull
+			and warn "Error during LaTeXing. See $baseName.log for explanation\n";
+		system $self->{dvisvgm}, '-v0', '-n', $baseName;
+	}
+
 	my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
+	chdir $cwd;
 
-	unlink "$baseName$_" for qw/.log .aux .tex .dvi .svg/;
+	#unlink "$baseName$_" for qw/.log .aux .tex .dvi .svg/;
 	#unlink "$baseName$_" for qw/.log .aux .tex .dvi/;
 
 	_unicalizeIds($svgDoc);

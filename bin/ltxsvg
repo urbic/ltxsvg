@@ -12,6 +12,8 @@ GetOptions(
 	'o|output-file=s'=>\$outputName,
 	'p|preamble-file=s'=>\$preambleName,
 	's|scale=f'=>\$options{scale},
+	'tex=s'=>\$options{tex},
+	'dvisvgm=s'=>\$options{dvisvgm},
 	);
 
 my $inputName=shift;
@@ -52,7 +54,7 @@ The program looks for any occurrence of B<E<lt>mathE<gt>> or
 B<E<lt>displayE<gt>> elements bound to the custom namespace
 B<"https://github.com/urbic/ltxsvg"> in the given XML document. The text
 content of these elements prepended with LaTeX preamble is passed to
-L<latex(1)>. Then the DVI output from L<latex(1)> is passed to L<dvisvgm(1)>.
+L<tex(1)>. Then the DVI output from L<tex(1)> is passed to L<dvisvgm(1)>.
 The SVG output of L<dvisvgm(1)> replaces the original B<E<lt>mathE<gt>> or
 B<E<lt>displayE<gt>> element. The program performs some mangling on the B<id>
 attributes in SVG elements to prevent their collisions.
@@ -173,6 +175,14 @@ following preamble is assumed:
 
 Scale the SVG formulae by the given I<factor>.
 
+=item B<--tex> I<command>
+
+The TeX command, default value is B<"pdftex">.
+
+=item B<--dvisvgm> I<command>
+
+The dvisvgm command, default value is B<"dvisvgm">.
+
 =item I<input_file>
 
 The name of the input file.
@@ -181,7 +191,7 @@ The name of the input file.
 
 =head1 SEE ALSO
 
-L<latex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.
+L<tex(1)>, L<dvisvgm(1)>, L<LTXSVG(3pm)>.
 
 Project site: L<https://github.com/urbic/ltxsvg>.
 
