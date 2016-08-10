@@ -194,8 +194,8 @@ sub processDocument($)
 {
 	my $self=shift;
 	my $doc=shift;
-	for my $math(@{$doc->documentElement->getElementsByTagNameNS(NS_L2S, 'math')},
-			@{$doc->documentElement->getElementsByTagNameNS(NS_L2S, 'display')})
+	for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
+			@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
 	{
 		my %opts=(display=>($math->localName eq 'display'));
 		for(qw/x y placement gap/)
@@ -216,7 +216,14 @@ sub processDocument($)
 		{
 			$wrapped=$svgDoc->documentElement;
 		}
-		$math->replaceNode($wrapped);
+		if($math==$math->ownerDocument->documentElement)
+		{
+			$math->ownerDocument->setDocumentElement($wrapped);
+		}
+		else
+		{
+			$math->replaceNode($wrapped);
+		}
 	}
 	_optimizePaths($doc);
 }
