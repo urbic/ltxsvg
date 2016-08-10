@@ -215,7 +215,10 @@ sub processDocument($)
 		else
 		{
 			$wrapped=$svgDoc->documentElement;
+			$wrapped->setAttribute($_, $wrapped->getAttribute($_)*$self->{scale})
+				for qw/width height/;
 		}
+
 		if($math==$math->ownerDocument->documentElement)
 		{
 			$math->ownerDocument->setDocumentElement($wrapped);
