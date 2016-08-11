@@ -1,0 +1,12 @@
+language: perl
+
+perl:
+  - "5.18"
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - libio-captureoutput-perl
+      - libdigest-md5-perl 
