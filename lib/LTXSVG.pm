@@ -102,7 +102,7 @@ sub makeSVG($;%)
 		warn "Error during TeX run. See $baseName.log for explanation\n"
 			unless $texSuccess;
 
-		my (undef, undef, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
+		my (undef, $dvisvgmError, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
 				(
 					$self->{dvisvgm},
 					'-v0',
@@ -113,7 +113,7 @@ sub makeSVG($;%)
 		{
 			unlink "$baseName$_" for qw/.log .aux .dvi/;
 		}
-		warn "Error during dvisvgm run.\n" unless $dvisvgmSuccess;
+		warn "Error during dvisvgm run: $dvisvgmError\n" unless $dvisvgmSuccess;
 	}
 
 	my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
