@@ -8,7 +8,7 @@ sudo: true
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y texlive-latex-base
-  - sudo apt-get install -y dvisvgm
+  - sudo apt-get install -y texlive-dvisvgm
 
 addons:
   apt:
@@ -16,4 +16,4 @@ addons:
       - libio-captureoutput-perl
       - libdigest-md5-perl 
       - texlive-latex-base
-      - dvisvgm
+      - texlive-dvisvgm
