@@ -99,8 +99,16 @@ sub makeSVG($;%)
 					$baseName
 				);
 
-		warn "Error during TeX run. See $baseName.log for explanation:\n$texOut\n$texError\n"
-			unless $texSuccess;
+		unless($texSuccess)
+		{
+			warn "Error during TeX run. See $baseName.log for explanation:\n$texError\n";
+			open my $texLog, '<', "$baseName.log";
+			while(<$texLog>)
+			{
+				print "TeX error> $_" if s/^! //;
+			}
+			warn 'See '.CACHE_DIR."/$baseName.log for details.\n";
+		}
 
 		my (undef, $dvisvgmError, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
 				(
