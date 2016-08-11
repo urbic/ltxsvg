@@ -94,13 +94,14 @@ sub makeSVG($;%)
 				(
 					$self->{tex},
 					'--output-format=dvi',
-					'--interaction=batchmode',
+					#'--interaction=batchmode',
 					'--parse-first-line',
 					$baseName
 				);
 
 		unless($texSuccess)
 		{
+			warn "Error during TeX run: $texOut\n";
 			warn "Error during TeX run: $texError\n";
 			open my $texLog, '<', "$baseName.log";
 			while(<$texLog>)
