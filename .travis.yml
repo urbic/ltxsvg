@@ -17,4 +17,4 @@ addons:
       - libdigest-md5-perl 
       - texlive-latex-base
       - texlive-extra-utils
-      - texlive-fonts-extra
+      - texlive-stix
