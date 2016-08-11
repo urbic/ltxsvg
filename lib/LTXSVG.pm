@@ -90,11 +90,11 @@ sub makeSVG($;%)
 		open my $file, '>:utf8', "$baseName.tex";
 		$file->print($texCode);
 	
-		my ($texOut, $texError, $texSuccess)=system #IO::CaptureOutput::capture_exec
+		my ($texOut, $texError, $texSuccess)=IO::CaptureOutput::capture_exec
 				(
 					$self->{tex},
 					'--output-format=dvi',
-					'--interaction=scrollmode',
+					'--interaction=batchmode',
 					'--parse-first-line',
 					$baseName
 				);
