@@ -5,10 +5,9 @@ perl:
 
 sudo: true
 
-#before_install:
-#  - sudo apt-get -qq update
-#  - sudo apt-get install -y texlive-latex-base
-#  - sudo apt-get install -y texlive-extra-utils
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y texlive-extra-utils
 
 addons:
   apt:
