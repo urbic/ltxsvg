@@ -7,7 +7,9 @@ sudo: true
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y texlive-extra-utils
+#  - sudo apt-get install -y texlive-extra-utils
+  - wget http://mirrors.kernel.org/ubuntu/pool/main/t/texlive-bin/texlive-binaries_2013.20130729.30972-2build3_amd64.deb
+  - sudo dpkg -i texlive-binaries_2013.20130729.30972-2build3_amd64.deb
 
 addons:
   apt:
@@ -15,6 +17,6 @@ addons:
       - libio-captureoutput-perl
       - libdigest-md5-perl 
       - texlive-latex-base
-      - texlive-extra-utils
       - texlive-fonts-extra
       - texlive-binaries
+#      - texlive-extra-utils

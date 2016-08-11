@@ -101,7 +101,7 @@ sub makeSVG($;%)
 
 		unless($texSuccess)
 		{
-			warn "Error during TeX run. See $baseName.log for explanation:\n$texError\n";
+			warn "Error during TeX run: $texError\n";
 			open my $texLog, '<', "$baseName.log";
 			while(<$texLog>)
 			{
