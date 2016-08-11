@@ -26,3 +26,4 @@ addons:
       - texlive-extra-utils
       - cpanminus
       - liblocal-lib-perl
+      - libextutils-makemaker-perl
