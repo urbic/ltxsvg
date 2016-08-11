@@ -43,7 +43,7 @@ __TEX__
 		TEX=>'pdftex',
 		DVISVGM=>'dvisvgm',
 		SQRT2=>sqrt 2,
-		CACHE_DIR=>'.ltxsvg-cache',
+		CACHE_DIR=>($ENV{HOME}//$ENV{LOGDIR}//'.').'/.ltxsvg-cache',
 	};
 
 sub new(%)
@@ -62,20 +62,19 @@ sub makeSVG($;%)
 	my $self=shift;
 	my $tex=shift;
 	my %opts=@_;
-	my $display=$opts{display}//0;
+	my $display=$opts{display}//'inline';
 
 	my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
-			.($display? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
+			.($display eq 'block'? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
 	my $baseName=Digest::MD5::md5_hex(Encode::encode_utf8($texCode));
 
 	my $cwd=getcwd;
-	chdir or die "Can not change to home directory: $!\n";
 	mkdir CACHE_DIR or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
 		if !-d CACHE_DIR;
 	chdir CACHE_DIR or die "Can not change to cache directory “".CACHE_DIR."”: $!\n";
 
 	my $needToCache=0;
-	unless(-f "$baseName.tex")
+	unless(-f "$baseName.tex" and -f "$baseName.svg")
 	{
 		$needToCache=1;
 	}
@@ -227,7 +226,7 @@ sub processDocument($)
 	for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
 			@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
 	{
-		my %opts=(display=>($math->localName eq 'display'));
+		my %opts=(display=>($math->localName eq 'display')? 'block': 'inline');
 		for(qw/x y placement gap/)
 		{
 			$opts{$_}=$math->getAttribute($_) if $math->getAttribute($_);
@@ -266,7 +265,7 @@ sub wrapForXHTML($;%)
 	my $self=shift;
 	my $svgDoc=shift;
 	my %opts=@_;
-	my $display=$opts{display}//0;
+	my $display=$opts{display}//'inline';
 
 	my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
 	#my $hOffset=0; # -$viewBox[0];
@@ -279,7 +278,7 @@ sub wrapForXHTML($;%)
 	$svgRoot->setAttribute('height', sprintf('%.5fem', $viewBox[3]*$self->{scale}*.1));
 	$divElement->appendChild($svgRoot);
 
-	my %css=$display?
+	my %css=($display eq 'block')?
 		(
 			'display'=>'block',
 			'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}),
@@ -308,7 +307,7 @@ sub wrapForSVG($;%)
 	my $self=shift;
 	my $svgDoc=shift;
 	my %opts=@_;
-	my $display=$opts{display}//0;
+	my $display=$opts{display}//'inline';
 
 	my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
 	my $width=$viewBox[2]*$self->{scale};
@@ -365,14 +364,13 @@ sub wrapForSVG($;%)
 		}
 		$svgRoot->setAttribute('x', $x);
 		$svgRoot->setAttribute('y', $y);
-		#for(qw/x y width height/)
-		#for(qw/x y/)
-		#{
-		#	my $att=$svgRoot->getAttribute($_);
-		#	$svgRoot->setAttribute($_, "${att}pt") if defined $att;
-		#}
 	}
 	return $svgRoot;
+}
+
+sub clearCache()
+{
+	unlink glob(CACHE_DIR."/*$_") for qw/.log .aux .tex .dvi .svg/;
 }
 
 sub _generateId
@@ -396,7 +394,7 @@ LTXSVG - convert LaTeX formulae to SVG documents
 	use LTXSVG;
 
 	my $ltxsvg=LTXSVG->new;
-	my $svgdom=$ltxsvg->makeSVG('\frac{\pi^2}6=\sum_{k=1}^\infty k^{-2}');
+	my $svgdom=$ltxsvg->makeSVG('\frac{\pi^2}6=\sum_{k=1}^\infty k^{-2}', display=>'block');
 	print $svgdom->toString;
 
 =head1 DESCRIPTION
@@ -411,7 +409,7 @@ dvisvgm(1) program.
 
 =over
 
-=item LTXSVG-E<gt>new(I<%options>)
+=item LTXSVG-E<gt>B<new>(I<%options>)
 
 Returns a new LaTeX to SVG converter. This method takes a hash containing the
 configuration options. Valid options are:
@@ -450,10 +448,92 @@ The L<dvisvgm(1)> invocation command, "dvisvgm" by default.
 
 =back
 
-=item I<$ltxsvg>-E<gt>makeSVG(I<$formula>, [I<%options>])
+=item I<$ltxsvg>-E<gt>B<makeSVG>(I<$formula>, [I<%options>])
 
-Returns an L<XML::LibXML::Document(3pm)> object containing the representation
-of the SVG document.
+Returns an L<XML::LibXML::Document(3pm)> object containing the SVG rendering of
+the given I<$formula>. The I<%options> hash contains the options controlling
+the rendering, valid options are:
+
+=over
+
+=item B<dislpay>
+
+When true, the formula is rendered as display block.
+
+=item B<x>, B<y> (SVG context)
+
+The coordinates of the formula reference point.
+
+=item B<placement> (SVG context)
+
+This attribute specifies the reference point position in the rendered formula.
+Valid values are:
+
+=over
+
+=item B<"right">
+
+in the middle of the left edge.
+
+=item B<"topRight">
+
+in the lower left corner.
+
+=item B<"top">
+
+in the middle of the upper edge.
+
+=item B<"topLeft">
+
+in the lower right corner.
+
+=item B<"left">
+
+in the middle of the right edge.
+
+=item B<"bottomLeft">
+
+in the upper right corner.
+
+=item B<"bottom">
+
+in the middle of the upper edge.
+
+=item B<"bottomRight">
+
+in the upper left corner.
+
+=back
+
+=item B<gap> (SVG context)
+
+The additional gap between the formula and the reference point. The default
+value is B<"3">.
+
+=item I<$ltxsvg>-E<gt>B<processDocument>(I<$document>)
+
+Takes an L<XML::LibXML::Document(3pm)> instance and replaces all the
+occurrences of formulae with their SVG renderings.
+
+=item I<$ltxsvg>-E<gt>B<processFile>(I<$in>, [I<$out>])
+
+
+
+=item I<$ltxsvg>-E<gt>B<clearCache>
+
+Clears the cache directory.
+
+=back
+
+=back
+
+=head1 FILES
+
+=over
+
+=item B<~/.ltxsvg-cache>
+
+The cache directory.
 
 =back
 
@@ -469,6 +549,6 @@ zlib/png.
 
 =head1 AUTHOR
 
-Anton Shvetz E<lt>tz@sectorb.msk.ruE<gt>.
+Anton Shvetz, L<mailto:tz@sectorb.msk.ru>.
 
 =cut

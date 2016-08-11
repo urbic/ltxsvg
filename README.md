@@ -31,6 +31,10 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 - Caching the rendered formulae.
 
+## Requirements
+
+**Perl**, **TeX**, **dvisvgm**.
+
 ## Examples
 
 [Stokes’ theorem](examples/stokes.xml)

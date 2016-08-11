@@ -1,0 +1,10 @@
+Build.PL
+bin/ltxsvg
+lib/LTXSVG.pm
+t/LTXSVG.t
+obs/ltxsvg.spec		The spec file for OBS
+MANIFEST			This list of files
+META.yml
+META.json
+README
+LICENSE
