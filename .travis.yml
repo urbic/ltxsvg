@@ -5,10 +5,10 @@ perl:
 
 sudo: true
 
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y texlive-latex-base
-  - sudo apt-get install -y texlive-extra-utils
+#before_install:
+#  - sudo apt-get -qq update
+#  - sudo apt-get install -y texlive-latex-base
+#  - sudo apt-get install -y texlive-extra-utils
 
 addons:
   apt:
@@ -17,3 +17,4 @@ addons:
       - libdigest-md5-perl 
       - texlive-latex-base
       - texlive-extra-utils
+      - texlive-fonts-extra
