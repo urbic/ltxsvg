@@ -105,7 +105,7 @@ sub makeSVG($;%)
 			open my $texLog, '<', "$baseName.log";
 			while(<$texLog>)
 			{
-				print "TeX error> $_" if s/^! //;
+				print "TeX error> $_";# if s/^! //;
 			}
 			warn 'See '.CACHE_DIR."/$baseName.log for details.\n";
 		}
