@@ -18,3 +18,4 @@ addons:
       - texlive-latex-base
       - texlive-extra-utils
       - texlive-fonts-extra
+      - texlive-binaries
