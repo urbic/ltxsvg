@@ -10,3 +10,5 @@ addons:
     packages:
       - libio-captureoutput-perl
       - libdigest-md5-perl 
+      - texlive-latex-base
+      - dvisvgm
