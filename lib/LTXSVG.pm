@@ -90,7 +90,7 @@ sub makeSVG($;%)
 		open my $file, '>:utf8', "$baseName.tex";
 		$file->print($texCode);
 	
-		my (undef, undef, $texSuccess)=IO::CaptureOutput::capture_exec
+		my (undef, $texError, $texSuccess)=IO::CaptureOutput::capture_exec
 				(
 					$self->{tex},
 					'--output-format=dvi',
@@ -99,7 +99,7 @@ sub makeSVG($;%)
 					$baseName
 				);
 
-		warn "Error during TeX run. See $baseName.log for explanation\n"
+		warn "Error during TeX run. See $baseName.log for explanation: $texError\n"
 			unless $texSuccess;
 
 		my (undef, $dvisvgmError, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
