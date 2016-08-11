@@ -20,3 +20,4 @@ addons:
       - texlive-fonts-extra
       - texlive-binaries
       - texlive-extra-utils
+      - cpanminus
