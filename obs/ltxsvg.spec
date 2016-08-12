@@ -15,46 +15,46 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-
-Name:           ltxsvg
-Version:        1.3.0
-Release:        0
-%define cpan_name %{name}
-Summary:        Perform SVG rendering of the TeX formulae embedded within XML documents
-License:        Zlib
-Group:          Development/Libraries/Perl
-Url:            https://github.com/urbic/ltxsvg
-Source0:        %{name}-%{version}.tar.gz
-BuildArch:      noarch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:	perl-base >= 5.18.2
-BuildRequires:	perl-macros
+Name:			ltxsvg
+Version:		1.3.0
+Release:		0
+Summary:		Perform SVG rendering of the TeX formulae embedded within XML documents
+License:		Zlib
+Group:			Development/Libraries/Perl
+Url:			https://github.com/urbic/ltxsvg
+Source0:		%{name}-%{version}.tar.gz
+BuildArch:		noarch
+BuildRoot:		%{_tmppath}/%{name}-%{version}-build
+BuildRequires:	perl(Capture::Tiny) >= 0.44
 BuildRequires:	perl(Cwd) >= 3.40
 BuildRequires:	perl(Digest::MD5) >= 2.52
 BuildRequires:	perl(Encode) >= 2.49
 BuildRequires:	perl(File::Basename) >= 2.84
-BuildRequires:	perl(Capture::Tiny) >= 0.44
+BuildRequires:	perl(File::Path) >= 2.09
 BuildRequires:	perl(IO::Handle) >= 1.34
 BuildRequires:	perl(Module::Install) >= 1.16
 BuildRequires:	perl(XML::LibXML) >= 2.0019
-BuildRequires:	texlive-pdftex
-BuildRequires:	texlive-latex
-BuildRequires:	texlive-stix >= 2016
+BuildRequires:	perl-base >= 5.18.2
+BuildRequires:	perl-macros
 BuildRequires:	texlive-amsmath
 BuildRequires:	texlive-dvisvgm
+BuildRequires:	texlive-latex
+BuildRequires:	texlive-pdftex
+BuildRequires:	texlive-stix >= 2016
+Requires:		perl(Capture::Tiny) >= 0.44
+Requires:		perl(Cwd) >= 3.40
+Requires:		perl(Digest::MD5) >= 2.52
+Requires:		perl(Encode) >= 2.49
+Requires:		perl(File::Basename) >= 2.84
+Requires:		perl(File::Path) >= 2.09
+Requires:		perl(IO::Handle) >= 1.34
+Requires:		perl(XML::LibXML) >= 2.0019
 Requires:		perl-base >= 5.18.2
-Requires:       perl(Cwd) >= 3.40
-Requires:       perl(Digest::MD5) >= 2.52
-Requires:       perl(Encode) >= 2.49
-Requires:       perl(File::Basename) >= 2.84
-Requires:       perl(Capture::Tiny) >= 0.44
-Requires:       perl(IO::Handle) >= 1.34
-Requires:       perl(XML::LibXML) >= 2.0019
-Requires:		texlive-pdftex
-Requires:		texlive-latex
-Requires:		texlive-stix >= 2016
 Requires:		texlive-amsmath
 Requires:		texlive-dvisvgm
+Requires:		texlive-latex
+Requires:		texlive-pdftex
+Requires:		texlive-stix >= 2014
 %{perl_requires}
 
 %description

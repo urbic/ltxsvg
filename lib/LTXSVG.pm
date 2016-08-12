@@ -3,6 +3,7 @@ package LTXSVG;
 use strict;
 use IO::Handle;
 use File::Basename;
+use File::Path;
 use Cwd;
 use XML::LibXML;
 use Digest::MD5;
@@ -43,7 +44,7 @@ __TEX__
 		TEX=>'pdftex',
 		DVISVGM=>'dvisvgm',
 		SQRT2=>sqrt 2,
-		CACHE_DIR=>($ENV{HOME}//$ENV{LOGDIR}//'.').'/.ltxsvg-cache',
+		CACHE_DIR=>($ENV{HOME}//$ENV{LOGDIR}//'.').'/.cache/ltxsvg',
 	};
 
 sub new(%)
@@ -69,7 +70,7 @@ sub makeSVG($;%)
 	my $baseName=Digest::MD5::md5_hex(Encode::encode_utf8($texCode));
 
 	my $cwd=getcwd;
-	mkdir CACHE_DIR or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
+	File::Path::make_path(CACHE_DIR) or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
 		if !-d CACHE_DIR;
 	chdir CACHE_DIR or die "Can not change to cache directory “".CACHE_DIR."”: $!\n";
 
@@ -386,7 +387,8 @@ sub wrapForSVG($;%)
 
 sub clearCache()
 {
-	unlink glob(CACHE_DIR."/*$_") for qw/.log .aux .tex .dvi .svg/;
+	File::Path::remove_tree(CACHE_DIR, {keep_root=>1, error=>\my $error});
+	return scalar @$error;
 }
 
 sub _generateId

@@ -17,6 +17,6 @@ BEGIN { use_ok('LTXSVG') };
 # its man page ( perldoc Test::More ) for help writing this test script.
 
 ok(my $ltxsvg=LTXSVG->new, 'LTXSVG::new');
-is(eval { LTXSVG::clearCache; }, '', 'LTXSVG::clearCache');
+is(eval { LTXSVG::clearCache; }, 0, 'LTXSVG::clearCache');
 ok($ltxsvg->makeSVG('\frac12'), 'LTXSVG::makeSVG/math');
 ok($ltxsvg->makeSVG('\frac12', display=>'block'), 'LTXSVG::makeSVG/display');

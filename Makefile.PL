@@ -20,14 +20,15 @@ browser without use of tools such as MathJax.
 __ABSTRACT__
 
 # Specific dependencies
-requires		'perl'=>'5.18.2';
+requires		'Capture::Tiny'=>'0.44';
+requires		'Cwd'=>'3.40';
+requires		'Digest::MD5'=>'2.52';
+requires		'Encode'=>'2.49';
+requires		'File::Basename'=>'2.84';
+requires		'File::Path'=>'2.09';
 requires		'IO::Handle'=>'1.34';
 requires		'XML::LibXML'=>'2.0019';
-requires		'File::Basename'=>'2.84';
-requires		'Digest::MD5'=>'2.52';
-requires		'Cwd'=>'3.40';
-requires		'Encode'=>'2.49';
-requires		'Capture::Tiny'=>'0.44';
+requires		'perl'=>'5.18.2';
 
 requires_external_bin	'dvisvgm';
 requires_external_bin	'pdftex';
