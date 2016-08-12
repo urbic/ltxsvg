@@ -19,6 +19,7 @@ dist: trusty
 addons:
   apt:
     packages:
+      - cpanminus
       - libmodule-install-perl
       - libcapture-tiny-perl
       - texlive-latex-base
