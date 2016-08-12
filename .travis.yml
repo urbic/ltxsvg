@@ -23,6 +23,7 @@ addons:
     packages:
       - cpanminus
       - libmodule-install-perl
+      - libxml-libxml-perl
       - libcapture-tiny-perl
       - texlive-latex-base
       - texlive-latex-extra
