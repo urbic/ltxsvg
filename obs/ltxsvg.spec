@@ -40,7 +40,7 @@ BuildRequires:	texlive-amsmath
 BuildRequires:	texlive-dvisvgm
 BuildRequires:	texlive-latex
 BuildRequires:	texlive-pdftex
-BuildRequires:	texlive-stix >= 2016
+BuildRequires:	texlive-stix >= 2014
 Requires:		perl(Capture::Tiny) >= 0.44
 Requires:		perl(Cwd) >= 3.40
 Requires:		perl(Digest::MD5) >= 2.52
