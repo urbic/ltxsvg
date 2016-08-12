@@ -4,6 +4,8 @@ use inc::Module::Install;
 name			'ltxsvg';
 version_from	'lib/LTXSVG.pm';
 license			'Zlib/png';
+homepage		'https://github.com/urbic/ltxsvg';
+repository		'https://github.com/urbic/ltxsvg.git';
 abstract		<<__ABSTRACT__;
 The command-line utility ltxsvg is intended to be used as preprocessor
 converting TeX formulae embedded within XML file to SVG format. The program
