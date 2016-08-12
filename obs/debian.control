@@ -1,0 +1,25 @@
+Source: ltxsvg
+Section: contrib/graphics
+Priority: optional
+Maintainer: Anton Shvetz <tz@sectorb.msk.ru>
+Build-Depends: debhelper (>= 9), perl, perl-base, libmodule-install-perl, libxml-libxml-perl, libcapture-tiny-perl, texlive-latex-base, texlive-latex-extra, texlive-fonts-extra, texlive-extra-utils
+Vcs-Git: https://github.com/urbic/ltxsvg.git
+Vcs-Browser: https://github.com/urbic/ltxsvg
+Homepage: https://github.com/urbic/ltxsvg
+
+Package: ltxsvg
+Architecture: all
+Depends: perl, perl-base, libxml-libxml-perl, libcapture-tiny-perl, texlive-latex-base, texlive-latex-extra, texlive-fonts-extra, texlive-extra-utils
+Description: perform SVG rendering of the TeX formulae embedded within XML documents
+ The command-line utility ltxsvg is intended to be used as preprocessor
+ converting TeX formulae embedded within XML file to SVG format. The program
+ uses an approach similar to one that implemented in MetaPost btex … etex
+ construct. The ltxsvg uses TeX and dvisvgm to render the formulae.
+ .
+ The program looks for any occurrence of <math> or <display> elements bound to
+ the custom namespace "https://github.com/urbic/ltxsvg" in the given XML
+ document and replaces it with the SVG rendering. The text content of these
+ elements is interpreted as TeX formula.
+ .
+ The preprocessed XHTML and SVG documents can be browsed in any SVG-capable
+ browser without use of tools such as MathJax.

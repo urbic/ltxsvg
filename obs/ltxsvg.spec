@@ -27,34 +27,34 @@ Url:            https://github.com/urbic/ltxsvg
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  perl
-BuildRequires:  perl-macros
-BuildRequires:  perl(Cwd) >= 3.40
-BuildRequires:  perl(Digest::MD5) >= 2.52
-BuildRequires:  perl(Encode) >= 2.49
-BuildRequires:  perl(File::Basename) >= 2.84
-BuildRequires:  perl(IO::CaptureOutput) >= 1.1104
-BuildRequires:  perl(IO::Handle) >= 1.34
-BuildRequires:  perl(Module::Build) >= 0.380000
-BuildRequires:  perl(Software::License) >= 0.103012
-BuildRequires:  perl(XML::LibXML) >= 2.0019
-BuildRequires:  texlive-pdftex
-BuildRequires:  texlive-latex
-BuildRequires:  texlive-stix
-BuildRequires:  texlive-amsmath
-BuildRequires:  texlive-dvisvgm
+BuildRequires:	perl-base >= 5.18.2
+BuildRequires:	perl-macros
+BuildRequires:	perl(Cwd) >= 3.40
+BuildRequires:	perl(Digest::MD5) >= 2.52
+BuildRequires:	perl(Encode) >= 2.49
+BuildRequires:	perl(File::Basename) >= 2.84
+BuildRequires:	perl(Capture::Tiny) >= 0.44
+BuildRequires:	perl(IO::Handle) >= 1.34
+BuildRequires:	perl(Module::Install) >= 1.16
+BuildRequires:	perl(XML::LibXML) >= 2.0019
+BuildRequires:	texlive-pdftex
+BuildRequires:	texlive-latex
+BuildRequires:	texlive-stix >= 2016
+BuildRequires:	texlive-amsmath
+BuildRequires:	texlive-dvisvgm
+Requires:		perl-base >= 5.18.2
 Requires:       perl(Cwd) >= 3.40
 Requires:       perl(Digest::MD5) >= 2.52
 Requires:       perl(Encode) >= 2.49
 Requires:       perl(File::Basename) >= 2.84
-Requires:       perl(IO::CaptureOutput) >= 1.1104
+Requires:       perl(Capture::Tiny) >= 0.44
 Requires:       perl(IO::Handle) >= 1.34
 Requires:       perl(XML::LibXML) >= 2.0019
-Requires:  texlive-pdftex
-Requires:  texlive-latex
-Requires:  texlive-stix
-Requires:  texlive-amsmath
-Requires:  texlive-dvisvgm
+Requires:		texlive-pdftex
+Requires:		texlive-latex
+Requires:		texlive-stix >= 2016
+Requires:		texlive-amsmath
+Requires:		texlive-dvisvgm
 %{perl_requires}
 
 %description
@@ -76,14 +76,15 @@ browser without use of tools such as MathJax.
 find . -type f -print0 | xargs -0 chmod 644
 
 %build
-%{__perl} Build.PL installdirs=vendor
-./Build build flags=%{?_smp_mflags}
+%{__perl} Makefile.PL installdirs=vendor
+%{__make} %{?_smp_mflags}
 
 %check
-./Build test
+%{__make} test
 
 %install
-./Build install destdir=%{buildroot} create_packlist=0
+%perl_make_install
+%perl_process_packlist
 %perl_gen_filelist
 
 %files -f %{name}.files

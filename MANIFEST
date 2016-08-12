@@ -1,8 +1,12 @@
-Build.PL
+Makefile.PL
 bin/ltxsvg
 lib/LTXSVG.pm
 t/LTXSVG.t
-obs/ltxsvg.spec		The spec file for OBS
+obs/ltxsvg.spec
+obs/debian.changelog
+obs/debian.compat
+obs/debian.control
+obs/debian.rules
 MANIFEST			This list of files
 META.yml
 META.json

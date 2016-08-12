@@ -19,4 +19,4 @@ BEGIN { use_ok('LTXSVG') };
 ok(my $ltxsvg=LTXSVG->new, 'LTXSVG::new');
 LTXSVG::clearCache;
 ok($ltxsvg->makeSVG('\frac12'), 'LTXSVG::makeSVG/math');
-ok($ltxsvg->makeSVG('\frac12', 1), 'LTXSVG::makeSVG/display');
+ok($ltxsvg->makeSVG('\frac12', display=>'block'), 'LTXSVG::makeSVG/display');

@@ -7,7 +7,7 @@ use Cwd;
 use XML::LibXML;
 use Digest::MD5;
 use Encode;
-use IO::CaptureOutput;
+use Capture::Tiny;
 use feature 'state';
 
 our $VERSION='1.02';
@@ -90,39 +90,46 @@ sub makeSVG($;%)
 		open my $file, '>:utf8', "$baseName.tex";
 		$file->print($texCode);
 	
-		my ($texOut, $texError, $texSuccess)=IO::CaptureOutput::capture_exec
-				(
-					$self->{tex},
-					'--output-format=dvi',
-					'--interaction=batchmode',
-					'--parse-first-line',
-					$baseName
-				);
+		my ($texOut, $texError, $texExitCode)
+			=Capture::Tiny::capture
+				{
+					system $self->{tex},
+						'--output-format=dvi',
+						'--interaction=batchmode',
+						'--parse-first-line',
+						$baseName
+				};
 
-		unless($texSuccess)
+		if($texExitCode)
 		{
-			warn "Error during TeX run: $texOut\n";
 			warn "Error during TeX run: $texError\n";
-			open my $texLog, '<', "$baseName.log";
-			while(<$texLog>)
+			if(-f "$baseName.log")
 			{
-				print "TeX error> $_";# if s/^! //;
+				open my $texLog, '<', "$baseName.log";
+				while(<$texLog>)
+				{
+					warn "TeX error> $_" if s/^! //;
+				}
+				warn 'See “'.CACHE_DIR."/$baseName.log” for details.\n";
 			}
-			warn 'See '.CACHE_DIR."/$baseName.log for details.\n";
+			else
+			{
+				warn 'Missing log file “'.CACHE_DIR."/$baseName.log”.\n";
+			}
 		}
 
-		my (undef, $dvisvgmError, $dvisvgmSuccess)=IO::CaptureOutput::capture_exec
-				(
-					$self->{dvisvgm},
-					'-v0',
-					'-n',
-					$baseName
-				);
-		if($texSuccess)
+		my (undef, $dvisvgmError, $dvisvgmExitCode)=Capture::Tiny::capture
+				{
+					system $self->{dvisvgm},
+						'-v0',
+						'-n',
+						$baseName
+				};
+		unless($texExitCode)
 		{
 			unlink "$baseName$_" for qw/.log .aux .dvi/;
 		}
-		warn "Error during dvisvgm run: $dvisvgmError\n" unless $dvisvgmSuccess;
+		warn "Error during dvisvgm run: $dvisvgmError\n" if $dvisvgmExitCode;
 	}
 
 	my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
