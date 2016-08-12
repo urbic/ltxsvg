@@ -13,6 +13,8 @@ elements is interpreted as TeX formula.
 The preprocessed XHTML and SVG documents can be browsed in any SVG-capable
 browser without use of tools such as [**MathJax**](http://mathjax.org).
 
+[![Build Status](https://secure.travis-ci.org/urbic/ltxsvg.png)](http://travis-ci.org/urbic/ltxsvg)
+
 ## Features
 
 - Support for inline and display formulae.
