@@ -13,13 +13,14 @@ dist: trusty
 #  - sudo apt-get -qq update
 #  - sudo apt-get install -y dvisvgm
 
-#install:
+install:
+    - perl Makefile.PL
+    - make test
 #  - cpanm -v --installdeps --notest --sudo .
 
 addons:
   apt:
     packages:
-      - perlbrew
       - cpanminus
       - libmodule-install-perl
       - libcapture-tiny-perl
