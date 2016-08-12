@@ -10,7 +10,7 @@ use Encode;
 use Capture::Tiny;
 use feature 'state';
 
-our $VERSION='1.02';
+our $VERSION='1.3.0';
 
 use constant
 	{

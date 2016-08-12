@@ -1,6 +1,7 @@
 /blib
-/_build
 /*.bak
 /*.old
 /README
-/Build
+/MYMETA.yml
+/MYMETA.json
+/inc

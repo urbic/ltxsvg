@@ -17,7 +17,7 @@
 
 
 Name:           ltxsvg
-Version:        1.02
+Version:        1.3.0
 Release:        0
 %define cpan_name %{name}
 Summary:        Perform SVG rendering of the TeX formulae embedded within XML documents
