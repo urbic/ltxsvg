@@ -7,9 +7,9 @@ sudo: required
 
 dist: trusty
 
-#install:
-#    - perl Makefile.PL
-#    - make test
+install:
+  - perl Makefile.PL
+  - make test
 
 addons:
   apt:
