@@ -25,7 +25,8 @@ Url:			https://github.com/urbic/ltxsvg
 Source0:		%{name}-%{version}.tar.gz
 BuildArch:		noarch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-build
-BuildRequires:	perl(Capture::Tiny) >= 0.44
+#BuildRequires:	perl(Capture::Tiny) >= 0.44
+BuildRequires:	perl(Capture::Tiny) >= 0.36
 BuildRequires:	perl(Cwd) >= 3.40
 BuildRequires:	perl(Digest::MD5) >= 2.52
 BuildRequires:	perl(Encode) >= 2.49
@@ -33,15 +34,17 @@ BuildRequires:	perl(File::Basename) >= 2.84
 BuildRequires:	perl(File::Path) >= 2.09
 BuildRequires:	perl(IO::Handle) >= 1.34
 BuildRequires:	perl(Module::Install) >= 1.16
+BuildRequires:	perl(Test::More) >= 0.98
 BuildRequires:	perl(XML::LibXML) >= 2.0019
-BuildRequires:	perl-base >= 5.18.2
+BuildRequires:	perl >= 5.18.2
 BuildRequires:	perl-macros
 BuildRequires:	texlive-amsmath
 BuildRequires:	texlive-dvisvgm
 BuildRequires:	texlive-latex
 BuildRequires:	texlive-pdftex
 BuildRequires:	texlive-stix >= 2014
-Requires:		perl(Capture::Tiny) >= 0.44
+#Requires:		perl(Capture::Tiny) >= 0.44
+Requires:		perl(Capture::Tiny) >= 0.36
 Requires:		perl(Cwd) >= 3.40
 Requires:		perl(Digest::MD5) >= 2.52
 Requires:		perl(Encode) >= 2.49
@@ -49,13 +52,26 @@ Requires:		perl(File::Basename) >= 2.84
 Requires:		perl(File::Path) >= 2.09
 Requires:		perl(IO::Handle) >= 1.34
 Requires:		perl(XML::LibXML) >= 2.0019
-Requires:		perl-base >= 5.18.2
+Requires:		perl >= 5.18.2
 Requires:		texlive-amsmath
 Requires:		texlive-dvisvgm
 Requires:		texlive-latex
 Requires:		texlive-pdftex
 Requires:		texlive-stix >= 2014
+%if 0%{?fedora}
+BuildRequires:	ghostscript-core
+BuildRequires:	perl-generators
+#BuildRequires:	texlive-base
+#BuildRequires:	texlive-etex
+BuildRequires:	texlive-collection-latex
+Requires:		ghostscript-core
+Requires:		perl(:MODULE_COMPAT_5.18)
+#Requires:		texlive-base
+#Requires:		texlive-etex
+Requires:		texlive-collection-latex
+%else
 %{perl_requires}
+%endif
 
 %description
 The command-line utility ltxsvg is intended to be used as preprocessor
@@ -76,12 +92,24 @@ browser without use of tools such as MathJax.
 find . -type f -print0 | xargs -0 chmod 644
 
 %build
-%{__perl} Makefile.PL installdirs=vendor
+PERL5_CPANPLUS_IS_RUNNING=1 %{__perl} Makefile.PL INSTALLDIRS=vendor NO_PACKLIST=1 NO_PERLLOCAL=1
 %{__make} %{?_smp_mflags}
 
 %check
 %{__make} test
 
+%if 0%{?fedora}
+%install
+%{__make} install DESTDIR=%{buildroot}
+
+%files
+%defattr(-,root,root,755)
+%doc LICENSE README
+%{_bindir}/*
+%{perl_vendorlib}/*
+%{_mandir}/man1/*
+%{_mandir}/man3/*
+%else
 %install
 %perl_make_install
 %perl_process_packlist
@@ -90,5 +118,6 @@ find . -type f -print0 | xargs -0 chmod 644
 %files -f %{name}.files
 %defattr(-,root,root,755)
 %doc LICENSE README
+%endif
 
 %changelog

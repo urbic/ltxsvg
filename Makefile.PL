@@ -22,7 +22,7 @@ browser without use of tools such as MathJax.
 __ABSTRACT__
 
 # Specific dependencies
-requires		'Capture::Tiny'=>'0.44';
+requires		'Capture::Tiny'=>'0.36';
 requires		'Cwd'=>'3.40';
 requires		'Digest::MD5'=>'2.52';
 requires		'Encode'=>'2.49';

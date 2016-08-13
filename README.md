@@ -44,8 +44,8 @@ make test
 make install
 ```
 
-Pre-built binary packages for **openSUSE**, **Debian** and **Ubuntu** are
-available at [openSUSE Build
+Pre-built binary packages for **openSUSE**, **Fedora**, **Debian** and
+**Ubuntu** are available at [openSUSE Build
 Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&package=ltxsvg).
 
 ## Requirements
