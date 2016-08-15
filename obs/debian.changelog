@@ -1,5 +1,5 @@
-ltxsvg (1.02-0) stable; urgency=low
+ltxsvg (1.4.0-0) stable; urgency=low
 
   * Initial release.
 
- -- MAINTAINER <tz@sectorb.msk.ru>  Thu, 11 Aug 2016 23:57:09 +0300
+ -- MAINTAINER <tz@sectorb.msk.ru>  Thu, 15 Aug 2016 06:23:25 +0300

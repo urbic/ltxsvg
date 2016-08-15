@@ -2,7 +2,7 @@ Source: ltxsvg
 Section: contrib/graphics
 Priority: optional
 Maintainer: Anton Shvetz <tz@sectorb.msk.ru>
-Build-Depends: debhelper (>= 9), perl, perl-base, libmodule-install-perl, libxml-libxml-perl, libcapture-tiny-perl, texlive-latex-base, texlive-latex-extra, texlive-fonts-extra, texlive-extra-utils
+Build-Depends: debhelper (>= 9), perl, perl-base, libmodule-install-perl, libxml-libxml-perl, libcapture-tiny-perl, liblockfile-simple-perl, texlive-latex-base, texlive-latex-extra, texlive-fonts-extra, texlive-extra-utils
 Vcs-Git: https://github.com/urbic/ltxsvg.git
 Vcs-Browser: https://github.com/urbic/ltxsvg
 Homepage: https://github.com/urbic/ltxsvg

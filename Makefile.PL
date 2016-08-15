@@ -31,13 +31,15 @@ requires		'File::Path'=>'2.09';
 requires		'IO::Handle'=>'1.34';
 requires		'XML::LibXML'=>'2.0019';
 requires		'perl'=>'5.18.2';
+requires		'LockFile::Simple'=>'0.208';
 
 requires_external_bin	'dvisvgm';
 requires_external_bin	'pdftex';
 
 test_requires  'Test::More'  => '0.98';
 
-#no_index       'directory'   => 'demos';
 install_script	'bin/ltxsvg';
+
+#makemaker_args	dist=>{ COMPRESS=>'xz', SUFFIX=>'.xz' };
 
 WriteAll;

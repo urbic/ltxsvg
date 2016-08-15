@@ -16,7 +16,7 @@
 #
 
 Name:			ltxsvg
-Version:		1.3.0
+Version:		1.4.0
 Release:		0
 Summary:		Perform SVG rendering of the TeX formulae embedded within XML documents
 License:		Zlib
@@ -25,7 +25,7 @@ Url:			https://github.com/urbic/ltxsvg
 Source0:		%{name}-%{version}.tar.gz
 BuildArch:		noarch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-build
-#BuildRequires:	perl(Capture::Tiny) >= 0.44
+BuildRequires:	perl >= 5.18.2
 BuildRequires:	perl(Capture::Tiny) >= 0.36
 BuildRequires:	perl(Cwd) >= 3.40
 BuildRequires:	perl(Digest::MD5) >= 2.52
@@ -33,17 +33,17 @@ BuildRequires:	perl(Encode) >= 2.49
 BuildRequires:	perl(File::Basename) >= 2.84
 BuildRequires:	perl(File::Path) >= 2.09
 BuildRequires:	perl(IO::Handle) >= 1.34
+BuildRequires:	perl(LockFile::Simple) >= 0.208
 BuildRequires:	perl(Module::Install) >= 1.16
 BuildRequires:	perl(Test::More) >= 0.98
 BuildRequires:	perl(XML::LibXML) >= 2.0019
-BuildRequires:	perl >= 5.18.2
 BuildRequires:	perl-macros
 BuildRequires:	texlive-amsmath
 BuildRequires:	texlive-dvisvgm
 BuildRequires:	texlive-latex
 BuildRequires:	texlive-pdftex
 BuildRequires:	texlive-stix >= 2014
-#Requires:		perl(Capture::Tiny) >= 0.44
+Requires:		perl >= 5.18.2
 Requires:		perl(Capture::Tiny) >= 0.36
 Requires:		perl(Cwd) >= 3.40
 Requires:		perl(Digest::MD5) >= 2.52
@@ -51,8 +51,8 @@ Requires:		perl(Encode) >= 2.49
 Requires:		perl(File::Basename) >= 2.84
 Requires:		perl(File::Path) >= 2.09
 Requires:		perl(IO::Handle) >= 1.34
+Requires:		perl(LockFile::Simple) >= 0.208
 Requires:		perl(XML::LibXML) >= 2.0019
-Requires:		perl >= 5.18.2
 Requires:		texlive-amsmath
 Requires:		texlive-dvisvgm
 Requires:		texlive-latex
@@ -60,14 +60,11 @@ Requires:		texlive-pdftex
 Requires:		texlive-stix >= 2014
 %if 0%{?fedora}
 BuildRequires:	ghostscript-core
+BuildRequires:	perl >= 5.18.2
 BuildRequires:	perl-generators
-#BuildRequires:	texlive-base
-#BuildRequires:	texlive-etex
 BuildRequires:	texlive-collection-latex
 Requires:		ghostscript-core
-Requires:		perl(:MODULE_COMPAT_5.18)
-#Requires:		texlive-base
-#Requires:		texlive-etex
+Requires:		perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:		texlive-collection-latex
 %else
 %{perl_requires}

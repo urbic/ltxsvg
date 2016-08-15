@@ -2,19 +2,23 @@
 
 use warnings;
 
+use feature ':5.10';
+use strict;
 use utf8;
 use LTXSVG;
 use IO::Handle;
 use Getopt::Long qw/:config no_ignore_case bundling/;
+use Exception::Base;
+#no warnings 'experimental::smartmatch';
 
-my (%options, $outputName, $preambleName, $clearCache);
+my (%options, $outputName, $preambleName);
 GetOptions(
 	'o|output-file=s'=>\$outputName,
 	'p|preamble-file=s'=>\$preambleName,
 	's|scale=f'=>\$options{scale},
 	'tex=s'=>\$options{tex},
 	'dvisvgm=s'=>\$options{dvisvgm},
-	'C|clear-cache!'=>\$clearCache,
+	'C|clear-cache!'=>\$options{clearCache},
 	);
 
 my $inputName=shift;
@@ -30,11 +34,7 @@ if(defined $preambleName)
 }
 
 my $ltxsvg=LTXSVG->new(%options);
-
-LTXSVG::clearCache if $clearCache;
-
 $ltxsvg->processFile($inputName, $outputName);
-__END__
 =pod
 
 =encoding UTF-8
@@ -191,6 +191,10 @@ The dvisvgm command, default value is B<"dvisvgm">.
 The name of the input file.
 
 =back
+
+=head1 LIMITATIONS
+
+B<ltxsvg> supports only those TeX engines which works in DVI mode.
 
 =head1 FILES
 

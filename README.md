@@ -13,6 +13,7 @@ elements is interpreted as TeX formula.
 The preprocessed XHTML and SVG documents can be browsed in any SVG-capable
 browser without use of tools such as [**MathJax**](http://mathjax.org).
 
+[![License](https://img.shields.io/badge/license-zlib%2Fpng-blue.svg)](http://opensource.org/licenses/Zlib)
 [![Build Status](https://secure.travis-ci.org/urbic/ltxsvg.png)](http://travis-ci.org/urbic/ltxsvg)
 
 ## Features

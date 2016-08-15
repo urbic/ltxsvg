@@ -1,26 +1,27 @@
-package LTXSVG
-{
+package LTXSVG;
 
-	use strict;
-	use IO::Handle;
-	use File::Basename;
-	use File::Path;
-	use Cwd;
-	use XML::LibXML;
-	use Digest::MD5;
-	use Encode;
-	use Capture::Tiny;
-	use feature ':5.10';
+use feature ':5.10';
+use strict;
+use IO::Handle;
+use File::Basename;
+use File::Path;
+use Cwd;
+use XML::LibXML;
+use Digest::MD5;
+use Encode;
+use Capture::Tiny;
+use LockFile::Simple;
+#no warnings 'experimental::smartmatch';
 
-	our $VERSION='1.3.0';
+our $VERSION='1.4.0';
 
-	use constant
-		{
-			NS_XHTML=>'http://www.w3.org/1999/xhtml',
-			NS_SVG=>'http://www.w3.org/2000/svg',
-			NS_XLINK=>'http://www.w3.org/1999/xlink',
-			NS_L2S=>'https://github.com/urbic/ltxsvg',
-			PREAMBLE=><<'__TEX__',
+use constant
+	{
+		NS_XHTML=>'http://www.w3.org/1999/xhtml',
+		NS_SVG=>'http://www.w3.org/2000/svg',
+		NS_XLINK=>'http://www.w3.org/1999/xlink',
+		NS_L2S=>'https://github.com/urbic/ltxsvg',
+		PREAMBLE=><<'__TEX__',
 %&latex
 \documentclass{article}
 \usepackage[utf8]{inputenc}
@@ -28,381 +29,392 @@ package LTXSVG
 \usepackage{amsmath}
 \begin{document}
 __TEX__
-#		TEX_SUPPORT=><<'__TEX__',
-#\makeatletter
-#\gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
-#\dimen\@ne=\ht\z@\dimen\tw@=\dp\z@\setbox\z@=\hbox{\box\z@
-#%\vrule width\@ne sp\ifnum\dimen\z@>\z@ height\dimen\@ne depth\dimen\tw@\else height\@ne sp depth\z@\fi
-#}\ht\z@=\z@\dp\z@=\z@\box\z@}}
-#\makeatother
-#__TEX__
-			TEX_SUPPORT=><<'__TEX__',
+		TEX_SUPPORT=><<'__TEX__',
 \catcode`\@11\relax
 \gdef\ltxsvgshipout#1{\shipout\hbox{\setbox\z@=\hbox{#1}\dimen\z@=\ht\z@\advance\dimen\z@\dp\z@
 \setbox\z@=\hbox{\box\z@}\ht\z@=\z@\dp\z@=\z@\box\z@}}
 \catcode`\@12\relax
 __TEX__
-			TEX=>'pdftex',
-			DVISVGM=>'dvisvgm',
-			SQRT2=>sqrt 2,
-			CACHE_DIR=>($ENV{HOME}//$ENV{LOGDIR}//'.').'/.cache/ltxsvg',
-		};
+		TEX=>'pdftex',
+		DVISVGM=>'dvisvgm',
+		SQRT2=>sqrt 2,
+		CACHE_DIR=>($ENV{HOME}//$ENV{LOGDIR}//'.').'/.cache/ltxsvg',
+		LOCK_MGR=>LockFile::Simple->make(-format=>'%f.lock'),
+	};
 
-	sub new(%)
+sub new(%)
+{
+	my $class=shift;
+	my $self={@_};
+	$self->{preamble}//=PREAMBLE;
+	$self->{tex}//=TEX;
+	$self->{dvisvgm}//=DVISVGM;
+	$self->{scale}//=1;
+	$self->{clearCache}//=0;
+	%{$self->{postprocessor}}
+		=(
+			NS_XHTML()=>\&_wrapForXHTML,
+			NS_SVG()=>\&_wrapForSVG,
+			__DEFAULT__=>\&_wrapDefault,
+		);
+
+	return bless $self, $class;
+}
+
+sub makeSVG($;%)
+{
+	my $self=shift;
+	my $tex=shift;
+	my %opts=@_;
+	my $display=$opts{display}//'inline';
+
+	my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
+			.($display eq 'block'? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
+	my $baseName=Digest::MD5::md5_hex(Encode::encode_utf8($texCode));
+
+	File::Path::make_path(CACHE_DIR) or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
+		if !-d CACHE_DIR;
+	my $cwd=getcwd;
+	chdir CACHE_DIR or die "Can not change to cache directory “".CACHE_DIR."”: $!\n";
+
+	LOCK_MGR->lock($baseName);
+
+	my $needToCache=0;
+	unless(not $self->{clearCache} and -f "$baseName.tex" and -f "$baseName.svg")
 	{
-		my $class=shift;
-		my $self={@_};
-		$self->{preamble}//=PREAMBLE;
-		$self->{tex}//=TEX;
-		$self->{dvisvgm}//=DVISVGM;
-		$self->{scale}//=1;
-		return bless $self, $class;
+		$needToCache=1;
+	}
+	else
+	{
+		open my $file, '<:utf8', "$baseName.tex";
+		read $file, my $cachedTeXCode, -s $file;
+		$needToCache=($cachedTeXCode ne $texCode);
 	}
 
-	sub makeSVG($;%)
+	if($needToCache)
 	{
-		my $self=shift;
-		my $tex=shift;
-		my %opts=@_;
-		my $display=$opts{display}//'inline';
+		unlink CACHE_DIR."/$baseName$_" for qw/.tex .log .aux .toc .dvi .svg/;
+		open my $file, '>:utf8', "$baseName.tex";
+		$file->print($texCode);
 
-		my $texCode=$self->{preamble}.TEX_SUPPORT."\\ltxsvgshipout{\$"
-				.($display eq 'block'? '\displaystyle ': '')."$tex\$}\n\\end{document}\n";
-		my $baseName=Digest::MD5::md5_hex(Encode::encode_utf8($texCode));
-
-		File::Path::make_path(CACHE_DIR) or die "Can not create cache directory “".CACHE_DIR."”: $!\n"
-			if !-d CACHE_DIR;
-		my $cwd=getcwd;
-		chdir CACHE_DIR or die "Can not change to cache directory “".CACHE_DIR."”: $!\n";
-
-		my $needToCache=0;
-		unless(-f "$baseName.tex" and -f "$baseName.svg")
-		{
-			$needToCache=1;
-		}
-		else
-		{
-			open my $file, '<:utf8', "$baseName.tex";
-			read $file, my $cachedTeXCode, -s $file;
-			$needToCache=($cachedTeXCode ne $texCode);
-		}
-
-		if($needToCache)
-		{
-			open my $file, '>:utf8', "$baseName.tex";
-			$file->print($texCode);
-		
-			my ($texOut, $texError, $texExitCode)
-				=Capture::Tiny::capture
-					{
-						system $self->{tex},
+		my ($texOut, $texError)
+			=eval
+			{
+				Capture::Tiny::capture
+				{
+					system
+						(
+							$self->{tex},
 							'--output-format=dvi',
 							'--interaction=batchmode',
 							'--parse-first-line',
 							$baseName
-					};
-
-			if($texExitCode)
-			{
-				warn "Error during TeX run: $texError\n";
-				if(-f "$baseName.log")
-				{
-					open my $texLog, '<', "$baseName.log";
-					while(<$texLog>)
-					{
-						warn "TeX error> $_" if s/^! //;
-					}
-					warn 'See “'.CACHE_DIR."/$baseName.log” for details.\n";
+						)
+						and die;
 				}
-				else
+			};
+		if($@)
+		{
+			my $details="Error during TeX run:\n";
+			if(-f "$baseName.log")
+			{
+				open my $texLog, '<', "$baseName.log";
+				while(<$texLog>)
 				{
-					warn 'Missing log file “'.CACHE_DIR."/$baseName.log”.\n";
-				}
-			}
-
-			my (undef, $dvisvgmError, $dvisvgmExitCode)=Capture::Tiny::capture
+					if(m/^! /)
 					{
-						system $self->{dvisvgm},
-							'-v0',
-							'-n',
-							$baseName
-					};
-			unless($texExitCode)
-			{
-				unlink "$baseName$_" for qw/.log .aux .dvi/;
-			}
-			warn "Error during dvisvgm run: $dvisvgmError\n" if $dvisvgmExitCode;
-		}
-
-		my $svgDoc=XML::LibXML->load_xml(location=>"$baseName.svg");
-
-		chdir $cwd;
-
-		#unlink "$baseName$_" for qw/.log .aux .tex .dvi .svg/;
-		#unlink "$baseName$_" for qw/.log .aux .tex .dvi/;
-
-		_unicalizeIds($svgDoc);
-
-		return $svgDoc;
-	}
-
-	sub _unicalizeIds
-	{
-		my $doc=shift;
-		my $rootElement=$doc->documentElement;
-		my @idNodes=$rootElement->getElementsByTagNameNS(NS_SVG, '*');
-		my %replacements;
-		for my $e(@idNodes)
-		{
-			my $id=$e->getAttribute('id');
-			next unless $id;
-			$replacements{$id}=_generateId();
-			$e->setAttribute('id', $replacements{$id});
-		}
-		for my $e(@idNodes)
-		{
-			my $href=$e->getAttributeNS(NS_XLINK, 'href');
-			next unless $href;
-			for my $oldId(keys %replacements)
-			{
-				$e->setAttributeNS(NS_XLINK, 'href', "#$replacements{$oldId}")
-					if $href eq "#$oldId";
-			}
-		}
-	}
-
-	sub _optimizePaths($)
-	{
-		my $doc=shift;
-		my %pathHash;
-		my %pathIdReplacements;
-
-		for my $path(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'path')})
-		{
-			if(exists $pathHash{$path->getAttribute('d')})
-			{
-				$pathIdReplacements{$path->getAttribute('id')}=$pathHash{$path->getAttribute('d')};
-				my $parent=$path->parentNode;
-				$parent->removeChild($path);
-				for(@{$parent->childNodes})
-				{
-					if($_->nodeType==XML::LibXML::XML_TEXT_NODE and $_->textContent=~m/^\s+$/)
-					{
-						$parent->removeChild($_);
+						$details.="\tTeX error> $_";
+						while(<$texLog>)
+						{
+							last if $_ eq "\n";
+							$details.="\tTeX error> $_";
+						}
 					}
 				}
-				if($parent->localName eq 'defs' and 0==@{$parent->childNodes})
-				{
-					$parent->parentNode->removeChild($parent);
-				}
+				$details.='See “'.CACHE_DIR."/$baseName.log” for details.\n";
 			}
 			else
 			{
-				$pathHash{$path->getAttribute('d')}=$path->getAttribute('id');
+				$details.='Missing log file “'.CACHE_DIR."/$baseName.log”.\n";
 			}
+			warn $details;
 		}
 
-		for my $use(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'use')})
+		my (undef, $dvisvgmError)=eval
+			{
+				Capture::Tiny::capture
+				{
+					system($self->{dvisvgm}, '-v0', '-n', $baseName)
+						and die;
+				}
+			};
+		if($@)
 		{
-			my $href=$use->getAttributeNS(NS_XLINK, 'href');
-			next unless $href=~s/^#//;
-			if(exists $pathIdReplacements{$href})
-			{
-				$use->setAttributeNS(NS_XLINK, 'href', "#$pathIdReplacements{$href}");
-			}
-			for(qw/x y/)
-			{
-				my $att=$use->getAttribute($_);
-				$use->removeAttribute($_) if defined $att and $att eq '0';
-			}
+			die("Error during dvisvgm run: $dvisvgmError\n");
 		}
 	}
 
-	sub processFile($;$)
-	{
-		my $self=shift;
-		my $inputName=shift;
-		my $outputName=shift;
-		my $doc=XML::LibXML->load_xml(location=>$inputName);
-		$self->processDocument($doc);
+	LOCK_MGR->unlock($baseName);
+	chdir $cwd;
 
-		if(defined $outputName)
+	my $svgDoc=XML::LibXML->load_xml(location=>CACHE_DIR."/$baseName.svg");
+	_unicalizeIds($svgDoc);
+	return $svgDoc;
+}
+
+sub _unicalizeIds
+{
+	my $doc=shift;
+	my $rootElement=$doc->documentElement;
+	my @idNodes=$rootElement->getElementsByTagNameNS(NS_SVG, '*');
+	my %replacements;
+	for my $e(@idNodes)
+	{
+		my $id=$e->getAttribute('id');
+		next unless $id;
+		$replacements{$id}=_generateId();
+		$e->setAttribute('id', $replacements{$id});
+	}
+	for my $e(@idNodes)
+	{
+		my $href=$e->getAttributeNS(NS_XLINK, 'href');
+		next unless $href;
+		for my $oldId(keys %replacements)
 		{
-			$doc->toFile($outputName);
+			$e->setAttributeNS(NS_XLINK, 'href', "#$replacements{$oldId}")
+				if $href eq "#$oldId";
+		}
+	}
+}
+
+sub _optimizePaths($)
+{
+	my $doc=shift;
+	my %pathHash;
+	my %pathIdReplacements;
+
+	for my $path(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'path')})
+	{
+		if(exists $pathHash{$path->getAttribute('d')})
+		{
+			$pathIdReplacements{$path->getAttribute('id')}=$pathHash{$path->getAttribute('d')};
+			my $parent=$path->parentNode;
+			$parent->removeChild($path);
+			for(@{$parent->childNodes})
+			{
+				if($_->nodeType==XML::LibXML::XML_TEXT_NODE and $_->textContent=~m/^\s+$/)
+				{
+					$parent->removeChild($_);
+				}
+			}
+			if($parent->localName eq 'defs' and 0==@{$parent->childNodes})
+			{
+				$parent->parentNode->removeChild($parent);
+			}
 		}
 		else
 		{
-			$doc->toFH(*STDOUT);
+			$pathHash{$path->getAttribute('d')}=$path->getAttribute('id');
 		}
 	}
 
-	sub processDocument($)
+	for my $use(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'use')})
 	{
-		my $self=shift;
-		my $doc=shift;
-		$doc->documentElement->removeAttribute('xmlns:ltx');
-		for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
-				@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
+		my $href=$use->getAttributeNS(NS_XLINK, 'href');
+		next unless $href=~s/^#//;
+		if(exists $pathIdReplacements{$href})
 		{
-			my %opts=(display=>($math->localName eq 'display')? 'block': 'inline');
-			for(qw/x y placement gap/)
-			{
-				$opts{$_}=$math->getAttribute($_) if $math->getAttribute($_);
-			}
-			my $svgDoc=$self->makeSVG($math->textContent, %opts);
-			my $wrapped;
-			given($math->parentNode->getNamespaceURI)
-			{
-				when(NS_XHTML)
-				{
-					$wrapped=$self->wrapForXHTML($svgDoc, %opts);
-				}
-				when(NS_SVG)
-				{
-					$wrapped=$self->wrapForSVG($svgDoc, %opts);
-				}
-				default
-				{
-					$wrapped=$svgDoc->documentElement;
-					$wrapped->setAttribute($_, $wrapped->getAttribute($_)*$self->{scale})
-						for qw/width height/;
-				}
-			}
-
-			if($math==$math->ownerDocument->documentElement)
-			{
-				$math->ownerDocument->setDocumentElement($wrapped);
-			}
-			else
-			{
-				$math->replaceNode($wrapped);
-			}
+			$use->setAttributeNS(NS_XLINK, 'href', "#$pathIdReplacements{$href}");
 		}
-		_optimizePaths($doc);
-	}
-
-	sub wrapForXHTML($;%)
-	{
-		my $self=shift;
-		my $svgDoc=shift;
-		my %opts=@_;
-		my $display=$opts{display}//'inline';
-
-		my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
-		#my $hOffset=0; # -$viewBox[0];
-		my $vOffset=($viewBox[3]+$viewBox[1])*$self->{scale}*.1;
-
-		my $divElement=XML::LibXML::Element->new('div');
-		$divElement->setNamespace(NS_XHTML, '', 1);
-		my $svgRoot=$svgDoc->documentElement;
-		$svgRoot->setAttribute('width', sprintf('%.5fem', $viewBox[2]*$self->{scale}*.1));
-		$svgRoot->setAttribute('height', sprintf('%.5fem', $viewBox[3]*$self->{scale}*.1));
-		$divElement->appendChild($svgRoot);
-
-		my %css=($display eq 'block')?
-			(
-				'display'=>'block',
-				'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}),
-				'margin-bottom'=>sprintf('%.5fem', 1.2*$self->{scale}),
-				'text-align'=>'center',
-			):
-			(
-				'display'=>'inline-block',
-				'position'=>'relative',
-				'bottom'=>sprintf('%.5fem', -$vOffset),
-				'margin-top'=>sprintf('%.5fem', -$vOffset),
-				'margin-bottom'=>sprintf('%.5fem', $vOffset),
-			);
-		my $css;
-		$css.="$_: $css{$_}; " for sort keys %css;
-		chop $css;
-
-		$divElement->setAttribute('style', $css);
-		$divElement->setAttribute('class', 'ltxsvg-'.($display? 'display': 'math'));
-
-		return $divElement;
-	}
-
-	sub wrapForSVG($;%)
-	{
-		my $self=shift;
-		my $svgDoc=shift;
-		my %opts=@_;
-		my $display=$opts{display}//'inline';
-
-		my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
-		my $width=$viewBox[2]*$self->{scale};
-		my $height=$viewBox[3]*$self->{scale};
-
-		my $svgRoot=$svgDoc->documentElement;
-		$svgRoot->setAttribute('width', $width);
-		$svgRoot->setAttribute('height', $height);
-
-		#$svgRoot->setNodeName('g');
-		if($opts{placement})
+		for(qw/x y/)
 		{
-			my $gap=($opts{gap}//3)*$self->{scale};
-			my ($x, $y);
-			if($opts{placement} eq 'bottom')
-			{
-				($x, $y)=($opts{x}-$width/2, $opts{y}+$gap);
-			}
-			elsif($opts{placement} eq 'top')
-			{
-				($x, $y)=($opts{x}-$width/2, $opts{y}-$height-$gap);
-			}
-			elsif($opts{placement} eq 'left')
-			{
-				($x, $y)=($opts{x}-$width-$gap, $opts{y}-$height/2);
-			}
-			elsif($opts{placement} eq 'right')
-			{
-				($x, $y)=($opts{x}+$gap, $opts{y}-$height/2);
-			}
-			elsif($opts{placement} eq 'topRight')
-			{
-				($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
-			}
-			elsif($opts{placement} eq 'topLeft')
-			{
-				($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
-			}
-			elsif($opts{placement} eq 'bottomLeft')
-			{
-				($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}+$gap/SQRT2);
-			}
-			elsif($opts{placement} eq 'bottomRight')
-			{
-				($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}+$gap/SQRT2);
-			}
-			elsif($opts{placement} eq 'center')
-			{
-				($x, $y)=($opts{x}-$width/2, $opts{y}-$height/2);
-			}
-			else
-			{
-				($x, $y)=@opts{qw/x y/};
-			}
-			$svgRoot->setAttribute('x', $x);
-			$svgRoot->setAttribute('y', $y);
+			my $att=$use->getAttribute($_);
+			$use->removeAttribute($_) if defined $att and $att eq '0';
 		}
-		return $svgRoot;
 	}
-
-	sub clearCache()
-	{
-		File::Path::remove_tree(CACHE_DIR, {keep_root=>1, error=>\my $error});
-		return scalar @$error;
-	}
-
-	sub _generateId
-	{
-		state $n=0;
-		return 'ltxsvg-'.++$n;
-	}
-
-	return 1;
 }
+
+sub processFile($;$)
+{
+	my $self=shift;
+	my $inputName=shift;
+	my $outputName=shift;
+	my $doc=XML::LibXML->load_xml(location=>$inputName);
+	$self->processDocument($doc);
+
+	if(defined $outputName)
+	{
+		$doc->toFile($outputName);
+	}
+	else
+	{
+		$doc->toFH(*STDOUT);
+	}
+}
+
+sub processDocument($)
+{
+	my $self=shift;
+	my $doc=shift;
+	$doc->documentElement->removeAttribute('xmlns:ltx');
+	for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
+			@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
+	{
+		my %opts=(display=>($math->localName eq 'display')? 'block': 'inline');
+		for(qw/x y placement gap/)
+		{
+			$opts{$_}=$math->getAttribute($_) if $math->getAttribute($_);
+		}
+		my $svgDoc=$self->makeSVG($math->textContent, %opts);
+		my $parentNameSpaceURI=$math->parentNode->getNamespaceURI;
+		my $postprocessor=$self->{postprocessor}{$parentNameSpaceURI}
+			//$self->{postprocessor}{__DEFAULT__};
+		my $wrapped=$postprocessor->($self, $svgDoc, %opts);
+
+		if($math==$math->ownerDocument->documentElement)
+		{
+			$math->ownerDocument->setDocumentElement($wrapped);
+		}
+		else
+		{
+			$math->replaceNode($wrapped);
+		}
+	}
+	_optimizePaths($doc);
+}
+
+sub _wrapForXHTML($$;%)
+{
+	my $self=shift;
+	my $svgDoc=shift;
+	my %opts=@_;
+	my $display=$opts{display}//'inline';
+
+	my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
+	my $vOffset=($viewBox[3]+$viewBox[1])*$self->{scale}*.1;
+
+	my $divElement=XML::LibXML::Element->new('div');
+	$divElement->setNamespace(NS_XHTML, '', 1);
+	my $svgRoot=$svgDoc->documentElement;
+	$svgRoot->setAttribute('width', sprintf('%.5fem', $viewBox[2]*$self->{scale}*.1));
+	$svgRoot->setAttribute('height', sprintf('%.5fem', $viewBox[3]*$self->{scale}*.1));
+	$divElement->appendChild($svgRoot);
+
+	my %css=($display eq 'block')?
+		(
+			'display'=>'block',
+			'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}),
+			'margin-bottom'=>sprintf('%.5fem', 1.2*$self->{scale}),
+			'text-align'=>'center',
+		):
+		(
+			'display'=>'inline-block',
+			'position'=>'relative',
+			'bottom'=>sprintf('%.5fem', -$vOffset),
+			'margin-top'=>sprintf('%.5fem', -$vOffset),
+			'margin-bottom'=>sprintf('%.5fem', $vOffset),
+		);
+	my $css;
+	$css.="$_: $css{$_}; " for sort keys %css;
+	chop $css;
+
+	$divElement->setAttribute('style', $css);
+	$divElement->setAttribute('class', 'ltxsvg-'.($display? 'display': 'math'));
+
+	return $divElement;
+}
+
+sub _wrapForSVG($$;%)
+{
+	my $self=shift;
+	my $svgDoc=shift;
+	my %opts=@_;
+	my $display=$opts{display}//'inline';
+
+	my @viewBox=split /\s+/, $svgDoc->documentElement->getAttribute('viewBox');
+	my $width=$viewBox[2]*$self->{scale};
+	my $height=$viewBox[3]*$self->{scale};
+
+	my $svgRoot=$svgDoc->documentElement;
+	$svgRoot->setAttribute('width', $width);
+	$svgRoot->setAttribute('height', $height);
+
+	if($opts{placement})
+	{
+		my $gap=($opts{gap}//3)*$self->{scale};
+		my ($x, $y);
+		if($opts{placement} eq 'bottom')
+		{
+			($x, $y)=($opts{x}-$width/2, $opts{y}+$gap);
+		}
+		elsif($opts{placement} eq 'top')
+		{
+			($x, $y)=($opts{x}-$width/2, $opts{y}-$height-$gap);
+		}
+		elsif($opts{placement} eq 'left')
+		{
+			($x, $y)=($opts{x}-$width-$gap, $opts{y}-$height/2);
+		}
+		elsif($opts{placement} eq 'right')
+		{
+			($x, $y)=($opts{x}+$gap, $opts{y}-$height/2);
+		}
+		elsif($opts{placement} eq 'topRight')
+		{
+			($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
+		}
+		elsif($opts{placement} eq 'topLeft')
+		{
+			($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}-$height-$gap/SQRT2);
+		}
+		elsif($opts{placement} eq 'bottomLeft')
+		{
+			($x, $y)=($opts{x}-$width-$gap/SQRT2, $opts{y}+$gap/SQRT2);
+		}
+		elsif($opts{placement} eq 'bottomRight')
+		{
+			($x, $y)=($opts{x}+$gap/SQRT2, $opts{y}+$gap/SQRT2);
+		}
+		elsif($opts{placement} eq 'center')
+		{
+			($x, $y)=($opts{x}-$width/2, $opts{y}-$height/2);
+		}
+		else
+		{
+			($x, $y)=@opts{qw/x y/};
+		}
+		$svgRoot->setAttribute('x', $x);
+		$svgRoot->setAttribute('y', $y);
+	}
+	return $svgRoot;
+}
+
+sub _wrapDefault($$;%)
+{
+	my $self=shift;
+	my $svgDoc=shift;
+	my %opts=@_;
+	my $svgRoot=$svgDoc->documentElement;
+	$svgRoot->setAttribute($_, $svgRoot->getAttribute($_)*$self->{scale})
+		for qw/width height/;
+	return $svgRoot;
+}
+
+sub ___clearCache($)
+{
+	my $baseName=shift;
+	unlink glob("$baseName.*");
+	#File::Path::remove_tree(CACHE_DIR, {keep_root=>1, error=>\my $error});
+	#return scalar @$error;
+}
+
+sub _generateId
+{
+	state $n=0;
+	return 'ltxsvg-'.++$n;
+}
+
+return 1;
 
 __END__
 
@@ -540,11 +552,7 @@ occurrences of formulae with their SVG renderings.
 
 =item I<$ltxsvg>-E<gt>B<processFile>(I<$in>, [I<$out>])
 
-
-
-=item I<$ltxsvg>-E<gt>B<clearCache>
-
-Clears the cache directory.
+TODO
 
 =back
 

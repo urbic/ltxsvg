@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More; # tests => 5;
 BEGIN { use_ok('LTXSVG') };
 
 #########################
@@ -16,7 +16,8 @@ BEGIN { use_ok('LTXSVG') };
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
-ok(my $ltxsvg=LTXSVG->new, 'LTXSVG::new');
-is(eval { LTXSVG::clearCache; }, 0, 'LTXSVG::clearCache');
-ok($ltxsvg->makeSVG('\frac12'), 'LTXSVG::makeSVG/math');
-ok($ltxsvg->makeSVG('\frac12', display=>'block'), 'LTXSVG::makeSVG/display');
+ok(my $ltxsvg=LTXSVG->new(clearCache=>1), 'LTXSVG::new');
+ok($ltxsvg->makeSVG('\frac12'), 'LTXSVG::makeSVG/latex/math');
+ok($ltxsvg->makeSVG('\frac12', display=>'block'), 'LTXSVG::makeSVG/latex/display');
+
+done_testing;
