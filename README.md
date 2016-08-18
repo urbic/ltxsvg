@@ -58,6 +58,7 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 ### XHTML input 
 
 ```html
+<?xml version="1.0" encoding="UTF-8"?>
 <html
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:tex="https://github.com/urbic/ltxsvg"
@@ -72,16 +73,19 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 </html>
 ```
 
+…and the ![result](examples/example1.png).
+
 ### SVG input
 
 ```svg
+<?xml version="1.0" encoding="UTF-8"?>
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:tex="https://github.com/urbic/ltxsvg" 
 	version="1.1"
-	viewBox="-20 -20 200 160"
-	width="200"
-	height="160"
+	viewBox="-20 -20 120 100"
+	width="120"
+	height="100"
 	>
 	<path d="M 0 0 v 60 h 80 z" fill="none" stroke="black" stroke-width="1"/>
 	<tex:math x="0" y="0" placement="top">A</tex:math>
@@ -89,6 +93,20 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 	<tex:math x="0" y="60" placement="bottom">C</tex:math>
 </svg>
 ```
+
+…and the ![result](examples/example2.png).
+
+
+### Generic XML input
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<display xmlns="https://github.com/urbic/ltxsvg">
+\oint\limits_{\partial\sigma}\omega=\int\limits_\sigma d\omega
+</display>
+```
+
+…and the ![result](examples/example3.png).
 
 [Stokes’ theorem](examples/stokes.xml)
 

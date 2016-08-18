@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:tex="https://github.com/urbic/ltxsvg" 
+	version="1.1"
+	viewBox="-20 -20 120 100"
+	width="120"
+	height="100"
+	>
+	<path d="M 0 0 v 60 h 80 z" fill="none" stroke="black" stroke-width="1"/>
+	<tex:math x="0" y="0" placement="top">A</tex:math>
+	<tex:math x="80" y="60" placement="bottomRight">B</tex:math>
+	<tex:math x="0" y="60" placement="bottom">C</tex:math>
+</svg>

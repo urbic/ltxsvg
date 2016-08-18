@@ -178,7 +178,7 @@ following preamble is assumed:
 
 =item B<-s>, B<--scale> I<factor>
 
-Scale the SVG formulae by the given I<factor>.
+Scale all the SVG formulae by the given I<factor>.
 
 =item B<--tex> I<command>
 
@@ -202,6 +202,7 @@ The name of the input file.
 
 =head2 Example XHTML input
 
+	<?xml version="1.0" encoding="UTF-8"?>
 	<html
 		xmlns="http://www.w3.org/1999/xhtml"
 		xmlns:tex="https://github.com/urbic/ltxsvg"
@@ -217,19 +218,27 @@ The name of the input file.
 
 =head2 Example SVG input
 
+	<?xml version="1.0" encoding="UTF-8"?>
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:tex="https://github.com/urbic/ltxsvg" 
 		version="1.1"
-		viewBox="-20 -20 200 160"
-		width="200"
-		height="160"
+		viewBox="-20 -20 120 100"
+		width="120"
+		height="100"
 		>
 		<path d="M 0 0 v 60 h 80 z" fill="none" stroke="black" stroke-width="1"/>
 		<tex:math x="0" y="0" placement="top">A</tex:math>
 		<tex:math x="80" y="60" placement="bottomRight">B</tex:math>
 		<tex:math x="0" y="60" placement="bottom">C</tex:math>
 	</svg>
+
+=head2 Generic XML input
+
+	<?xml version="1.0" encoding="UTF-8"?>
+	<display xmlns="https://github.com/urbic/ltxsvg">
+	\oint\limits_{\partial\sigma}\omega=\int\limits_\sigma d\omega
+	</display>
 
 =head1 LIMITATIONS
 
