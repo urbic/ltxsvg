@@ -108,10 +108,6 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 
 …and the ![result](examples/example3.png).
 
-[Stokes’ theorem](examples/stokes.xml)
-
-![Stokes’ theorem](examples/stokes.png)
-
 ## License
 
 [zlib/png](LICENSE).
