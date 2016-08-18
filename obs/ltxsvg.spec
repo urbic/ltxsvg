@@ -16,7 +16,7 @@
 #
 
 Name:			ltxsvg
-Version:		1.4.0
+Version:		1.4.1
 Release:		0
 Summary:		Perform SVG rendering of the TeX formulae embedded within XML documents
 License:		Zlib

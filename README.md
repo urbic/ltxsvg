@@ -59,7 +59,7 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 
 ```html
 <html
-	xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:tex="https://github.com/urbic/ltxsvg"
 	>
 	<body>
@@ -68,7 +68,7 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 		<tex:math>c</tex:math> hypotenuse, then
 		<tex:display>c^2=a^2+b^2.</tex:display>
 		</p>
-	<body>
+	</body>
 </html>
 ```
 
