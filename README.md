@@ -34,25 +34,6 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 - Caching the rendered formulae.
 
-## Installation
-
-To install **ltxsvg** type the following commands:
-
-```bash
-perl Makefile.PL
-make
-make test
-make install
-```
-
-Pre-built binary packages for **openSUSE**, **Fedora**, **Debian** and
-**Ubuntu** are available at [openSUSE Build
-Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&package=ltxsvg).
-
-## Requirements
-
-**Perl**, **TeX**, **dvisvgm**.
-
 ## Examples
 
 ### XHTML input 
@@ -113,6 +94,25 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 …and the result:
 
 ![Example 3](examples/example3.png).
+
+## Installation
+
+To install **ltxsvg** type the following commands:
+
+```bash
+perl Makefile.PL
+make
+make test
+make install
+```
+
+Pre-built binary packages for **openSUSE**, **Fedora**, **Debian** and
+**Ubuntu** are available at [openSUSE Build
+Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&package=ltxsvg).
+
+## Requirements
+
+**Perl**, **TeX**, **dvisvgm**.
 
 ## License
 
