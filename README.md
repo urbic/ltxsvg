@@ -29,7 +29,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
   the rendering at the specified point as well as does the `label` command in
   **MetaPost**.
 
-- Optimization intended to reduce the size of the resuling file and to
+- Optimization intended to reduce the size of the resulting file and to
   accelerate its rendering in a browser window.
 
 - Caching the rendered formulae.
@@ -73,7 +73,9 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 </html>
 ```
 
-…and the ![result](examples/example1.png).
+…and the result:
+
+![Example 1](examples/example1.png).
 
 ### SVG input
 
@@ -94,7 +96,9 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 </svg>
 ```
 
-…and the ![result](examples/example2.png).
+…and the result:
+
+![Example 2](examples/example2.png).
 
 
 ### Generic XML input
@@ -106,7 +110,9 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 </display>
 ```
 
-…and the ![result](examples/example3.png).
+…and the result:
+
+![Example 3](examples/example3.png).
 
 ## License
 
