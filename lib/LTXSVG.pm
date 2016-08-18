@@ -575,6 +575,8 @@ in the upper left corner.
 The additional gap between the formula and the reference point. The default
 value is B<"3">.
 
+=back
+
 =item I<$ltxsvg>-E<gt>B<processDocument>(I<$document>)
 
 Takes an L<XML::LibXML::Document(3pm)> instance and replaces all the
@@ -583,8 +585,6 @@ occurrences of formulae with their SVG renderings.
 =item I<$ltxsvg>-E<gt>B<processFile>(I<$in>, [I<$out>])
 
 TODO
-
-=back
 
 =back
 
@@ -606,7 +606,7 @@ Project site: L<https://github.com/urbic/ltxsvg>.
 
 =head1 LICENSE
 
-zlib/png.
+L<zlib/png|http://opensource.org/licenses/Zlib>.
 
 =head1 AUTHOR
 

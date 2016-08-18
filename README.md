@@ -55,6 +55,41 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 
 ## Examples
 
+### XHTML input 
+
+```html
+<html
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns:tex="https://github.com/urbic/ltxsvg"
+	>
+	<body>
+		<p>
+		If <tex:math>a</tex:math> and <tex:math>b</tex:math> are legs,
+		<tex:math>c</tex:math> hypotenuse, then
+		<tex:display>c^2=a^2+b^2.</tex:display>
+		</p>
+	<body>
+</html>
+```
+
+### SVG input
+
+```svg
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:tex="https://github.com/urbic/ltxsvg" 
+	version="1.1"
+	viewBox="-20 -20 200 160"
+	width="200"
+	height="160"
+	>
+	<path d="M 0 0 v 60 h 80 z" fill="none" stroke="black" stroke-width="1"/>
+	<tex:math x="0" y="0" placement="top">A</tex:math>
+	<tex:math x="80" y="60" placement="bottomRight">B</tex:math>
+	<tex:math x="0" y="60" placement="bottom">C</tex:math>
+</svg>
+```
+
 [Stokes’ theorem](examples/stokes.xml)
 
 ![Stokes’ theorem](examples/stokes.png)

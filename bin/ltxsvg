@@ -215,7 +215,7 @@ The name of the input file.
 		<body>
 	</html>
 
-=head2 Example XHTML input
+=head2 Example SVG input
 
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +253,7 @@ Project site: L<https://github.com/urbic/ltxsvg>.
 
 =head1 LICENSE
 
-zlib/png.
+L<zlib/png|http://opensource.org/licenses/Zlib>.
 
 =head1 AUTHOR
 
