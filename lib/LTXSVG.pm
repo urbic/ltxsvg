@@ -13,14 +13,14 @@ use Capture::Tiny;
 use LockFile::Simple;
 #no warnings 'experimental::smartmatch';
 
-our $VERSION='1.4.0';
+our $VERSION='1.4.1';
 
 use constant
 	{
 		NS_XHTML=>'http://www.w3.org/1999/xhtml',
 		NS_SVG=>'http://www.w3.org/2000/svg',
 		NS_XLINK=>'http://www.w3.org/1999/xlink',
-		NS_L2S=>'https://github.com/urbic/ltxsvg',
+		NS_LTXSVG=>'https://github.com/urbic/ltxsvg',
 		PREAMBLE=><<'__TEX__',
 %&latex
 \documentclass{article}
@@ -158,6 +158,7 @@ sub makeSVG($;%)
 	chdir $cwd;
 
 	my $svgDoc=XML::LibXML->load_xml(location=>CACHE_DIR."/$baseName.svg");
+	_optimizeGroups($svgDoc);
 	_unicalizeIds($svgDoc);
 	return $svgDoc;
 }
@@ -202,15 +203,12 @@ sub _optimizePaths($)
 			$parent->removeChild($path);
 			for(@{$parent->childNodes})
 			{
-				if($_->nodeType==XML::LibXML::XML_TEXT_NODE and $_->textContent=~m/^\s+$/)
-				{
-					$parent->removeChild($_);
-				}
+				$parent->removeChild($_)
+					if $_->nodeType==XML::LibXML::XML_TEXT_NODE
+						and $_->textContent=~m/^\s+$/;
 			}
-			if($parent->localName eq 'defs' and 0==@{$parent->childNodes})
-			{
-				$parent->parentNode->removeChild($parent);
-			}
+			$parent->parentNode->removeChild($parent)
+				if $parent->localName eq 'defs' and 0==@{$parent->childNodes};
 		}
 		else
 		{
@@ -222,14 +220,61 @@ sub _optimizePaths($)
 	{
 		my $href=$use->getAttributeNS(NS_XLINK, 'href');
 		next unless $href=~s/^#//;
-		if(exists $pathIdReplacements{$href})
-		{
-			$use->setAttributeNS(NS_XLINK, 'href', "#$pathIdReplacements{$href}");
-		}
+		$use->setAttributeNS(NS_XLINK, 'href', "#$pathIdReplacements{$href}")
+			if exists $pathIdReplacements{$href};
 		for(qw/x y/)
 		{
 			my $att=$use->getAttribute($_);
 			$use->removeAttribute($_) if defined $att and $att eq '0';
+		}
+	}
+}
+
+sub _optimizeNSDecls
+{
+	my $doc=shift;
+
+	# Drop LTXSVG namespace declaration from document element
+	for($doc->documentElement->getNamespaces)
+	{
+		$doc->documentElement->setNamespaceDeclURI($_->getLocalName, undef)
+			if $_->declaredURI eq NS_LTXSVG;
+	}
+
+	# Add XLINK declaration to document element
+	$doc->documentElement->setNamespace(NS_XLINK, 'xlink', 0);
+	
+	for my $svg(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'svg')})
+	{
+		for($svg->getNamespaces)
+		{
+			$svg->setNamespaceDeclURI('xlink', undef)
+				if $_->declaredURI eq NS_XLINK;
+		}
+
+		for my $use($svg->getElementsByTagNameNS(NS_SVG, '*'))
+		{
+			my $href=$use->getAttributeNode('href');
+			$href->setNamespace(NS_XLINK, 'xlink', 0) if $href;
+		}
+	}
+}
+
+sub _optimizeGroups
+{
+	my $svgDoc=shift;
+	for my $g($svgDoc->getElementsByTagNameNS(NS_SVG, 'g'))
+	{
+		my @attrs=$g->attributes;
+		if(@attrs==1 and $g->getAttribute('id')=~m/^page/)
+		{
+			my $parent=$g->parentNode;
+			for($g->childNodes)
+			{
+				next if $_->nodeType==XML::LibXML::XML_TEXT_NODE and $_->textContent=~m/^\s+$/;
+				$parent->insertAfter($_, $g);
+			}
+			$parent->removeChild($g);
 		}
 	}
 }
@@ -256,20 +301,18 @@ sub processDocument($)
 {
 	my $self=shift;
 	my $doc=shift;
-	$doc->documentElement->removeAttribute('xmlns:ltx');
-	for my $math(@{$doc->getElementsByTagNameNS(NS_L2S, 'math')},
-			@{$doc->getElementsByTagNameNS(NS_L2S, 'display')})
+	for my $math($doc->getElementsByTagNameNS(NS_LTXSVG, '*'))
 	{
 		my %opts=(display=>($math->localName eq 'display')? 'block': 'inline');
 		for(qw/x y placement gap/)
 		{
 			$opts{$_}=$math->getAttribute($_) if $math->getAttribute($_);
 		}
-		my $svgDoc=$self->makeSVG($math->textContent, %opts);
-		my $parentNameSpaceURI=$math->parentNode->getNamespaceURI;
-		my $postprocessor=$self->{postprocessor}{$parentNameSpaceURI}
+		my $postprocessor=$self->{postprocessor}{$math->parentNode->getNamespaceURI}
 			//$self->{postprocessor}{__DEFAULT__};
+		my $svgDoc=$self->makeSVG($math->textContent, %opts);
 		my $wrapped=$postprocessor->($self, $svgDoc, %opts);
+		$doc->adoptNode($wrapped);
 
 		if($math==$math->ownerDocument->documentElement)
 		{
@@ -280,7 +323,9 @@ sub processDocument($)
 			$math->replaceNode($wrapped);
 		}
 	}
+
 	_optimizePaths($doc);
+	_optimizeNSDecls($doc);
 }
 
 sub _wrapForXHTML($$;%)
@@ -400,14 +445,6 @@ sub _wrapDefault($$;%)
 	return $svgRoot;
 }
 
-sub ___clearCache($)
-{
-	my $baseName=shift;
-	unlink glob("$baseName.*");
-	#File::Path::remove_tree(CACHE_DIR, {keep_root=>1, error=>\my $error});
-	#return scalar @$error;
-}
-
 sub _generateId
 {
 	state $n=0;
@@ -466,16 +503,9 @@ The default value is
 If the first line in preamble starts with "%&" characters, the rest of the line
 is used as the name of the format.
 
-=item B<fontSize>
+=item B<tex>
 
-The font size, the default value is "10pt". The font size specification
-consists of a positive integer or floating point number and a unit (without any
-whitespace in between). Valid units are "in" (inch), "pt" (point), "cm"
-(centimeter), "mm" (millimeter), "pc" (pica), "px" (pixel).
-
-=item B<latex>
-
-The L<latex(1)> invocation command, "pdftex" by default.
+The L<tex(1)> invocation command, "pdftex" by default.
 
 =item B<dvisvgm>
 
@@ -570,7 +600,7 @@ The cache directory.
 
 =head1 SEE ALSO
 
-L<latex(1)>, L<dvisvgm(1)>, L<ltxsvg(1)>.
+L<tex(1)>, L<dvisvgm(1)>, L<ltxsvg(1)>.
 
 Project site: L<https://github.com/urbic/ltxsvg>.
 

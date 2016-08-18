@@ -67,7 +67,9 @@ B<E<lt>displayE<gt>> element belongs to XHTML or SVG namespace. See L</"XHTML
 Input"> and L</"SVG Input"> sections for details.
 
 The preprocessed XHTML or SVG documents can be browsed in any SVG-capable
-browser without use of tools such as B<MathJax>.
+browser without use of tools such as L<MathJax|http://mathjax.org>.
+
+B<ltxsvg> is a front-end for L<LTXSVG(3pm)>.
 
 =head2 XHTML Input
 
@@ -186,11 +188,48 @@ The TeX command, default value is B<"pdftex">.
 
 The dvisvgm command, default value is B<"dvisvgm">.
 
+=item B<-C>, B<--clear-cache>
+
+Clear cached formulae forcing TeX and dvisvgm to re-run.
+
 =item I<input_file>
 
 The name of the input file.
 
 =back
+
+=head1 EXAMPLES
+
+=head2 Example XHTML input
+
+	<html
+		xmlns:html="http://www.w3.org/1999/xhtml"
+		xmlns:tex="https://github.com/urbic/ltxsvg"
+		>
+		<body>
+			<p>
+			If <tex:math>a</tex:math> and <tex:math>b</tex:math> are legs,
+			<tex:math>c</tex:math> hypotenuse, then
+			<tex:display>c^2=a^2+b^2.</tex:display>
+			</p>
+		<body>
+	</html>
+
+=head2 Example XHTML input
+
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		xmlns:tex="https://github.com/urbic/ltxsvg" 
+		version="1.1"
+		viewBox="-20 -20 200 160"
+		width="200"
+		height="160"
+		>
+		<path d="M 0 0 v 60 h 80 z" fill="none" stroke="black" stroke-width="1"/>
+		<tex:math x="0" y="0" placement="top">A</tex:math>
+		<tex:math x="80" y="60" placement="bottomRight">B</tex:math>
+		<tex:math x="0" y="60" placement="bottom">C</tex:math>
+	</svg>
 
 =head1 LIMITATIONS
 
@@ -200,7 +239,7 @@ B<ltxsvg> supports only those TeX engines which works in DVI mode.
 
 =over
 
-=item B<~/.ltxsvg-cache>
+=item B<~/.cache/ltxsvg>
 
 The cache directory.
 
