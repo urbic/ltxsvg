@@ -13,7 +13,7 @@ use Capture::Tiny;
 use LockFile::Simple;
 #no warnings 'experimental::smartmatch';
 
-our $VERSION='1.4.1';
+our $VERSION='1.4.2';
 
 use constant
 	{
@@ -272,7 +272,7 @@ sub _optimizeGroups
 			for($g->childNodes)
 			{
 				next if $_->nodeType==XML::LibXML::XML_TEXT_NODE and $_->textContent=~m/^\s+$/;
-				$parent->insertAfter($_, $g);
+				$parent->insertBefore($_, $g);
 			}
 			$parent->removeChild($g);
 		}
@@ -364,7 +364,7 @@ sub _wrapForXHTML($$;%)
 	chop $css;
 
 	$divElement->setAttribute('style', $css);
-	$divElement->setAttribute('class', 'ltxsvg-'.($display? 'display': 'math'));
+	$divElement->setAttribute('class', 'ltxsvg-'.($display eq 'block'? 'display': 'math'));
 
 	return $divElement;
 }
