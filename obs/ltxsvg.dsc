@@ -16,6 +16,6 @@ Build-Depends:
 	texlive-fonts-extra,
 	texlive-extra-utils
 Debtransform-Tar: ltxsvg-1.5.0.tar.gz
-Files: 
+Files:
 	00000000000000000000000000000000 0 @NAME@_@VERSION@.orig.tar.gz
 	00000000000000000000000000000000 0 @NAME@_@VERSION@-0.diff.tar.gz

@@ -38,7 +38,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 ## Examples
 
-### XHTML input 
+### XHTML input
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
@@ -66,7 +66,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 <?xml version="1.0" encoding="UTF-8"?>
 <svg
 	xmlns="http://www.w3.org/2000/svg"
-	xmlns:tex="https://github.com/urbic/ltxsvg" 
+	xmlns:tex="https://github.com/urbic/ltxsvg"
 	version="1.1"
 	viewBox="-20 -20 120 100"
 	width="240"

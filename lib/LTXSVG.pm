@@ -245,7 +245,7 @@ sub _optimizeNSDecls
 
 	# Add XLINK declaration to document element
 	$doc->documentElement->setNamespace(NS_XLINK, 'xlink', 0);
-	
+
 	for my $svg(@{$doc->documentElement->getElementsByTagNameNS(NS_SVG, 'svg')})
 	{
 		for($svg->getNamespaces)

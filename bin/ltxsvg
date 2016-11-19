@@ -230,7 +230,7 @@ option has no effect when B<-o> option was specified.
 	<?xml version="1.0" encoding="UTF-8"?>
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
-		xmlns:tex="https://github.com/urbic/ltxsvg" 
+		xmlns:tex="https://github.com/urbic/ltxsvg"
 		version="1.1"
 		viewBox="-20 -20 120 100"
 		width="240"

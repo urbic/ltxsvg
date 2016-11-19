@@ -2,7 +2,8 @@ Source: @NAME@
 Section: contrib/graphics
 Priority: optional
 Maintainer: Anton Shvetz <tz@sectorb.msk.ru>
-Build-Depends: debhelper (>= 9),
+Build-Depends:
+	debhelper (>= 9),
 	perl (>=5.18.2),
 	perl-base,
 	libmodule-install-perl (>=1.14),
@@ -19,7 +20,8 @@ Homepage: https://github.com/urbic/ltxsvg
 
 Package: ltxsvg
 Architecture: all
-Depends: perl,
+Depends:
+	perl,
 	perl-base,
 	libxml-libxml-perl,
 	libcapture-tiny-perl,
