@@ -1,3 +1,9 @@
+ltxsvg (1.5.0-0) stable; urgency=low
+
+  * Update to v1.5.0.
+
+ -- MAINTAINER <tz@sectorb.msk.ru>  Thu, 18 Nov 2016 18:59:00 +0300
+
 ltxsvg (1.4.0-0) stable; urgency=low
 
   * Initial release.

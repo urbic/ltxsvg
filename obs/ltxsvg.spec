@@ -15,8 +15,8 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-Name:			ltxsvg
-Version:		1.4.1
+Name:			@NAME@
+Version:		@VERSION@
 Release:		0
 Summary:		Perform SVG rendering of the TeX formulae embedded within XML documents
 License:		Zlib
@@ -32,6 +32,7 @@ BuildRequires:	perl(Digest::MD5) >= 2.52
 BuildRequires:	perl(Encode) >= 2.49
 BuildRequires:	perl(File::Basename) >= 2.84
 BuildRequires:	perl(File::Path) >= 2.09
+BuildRequires:	perl(File::Copy) >= 2.26
 BuildRequires:	perl(IO::Handle) >= 1.34
 BuildRequires:	perl(LockFile::Simple) >= 0.208
 BuildRequires:	perl(Module::Install) >= 1.16
@@ -50,6 +51,7 @@ Requires:		perl(Digest::MD5) >= 2.52
 Requires:		perl(Encode) >= 2.49
 Requires:		perl(File::Basename) >= 2.84
 Requires:		perl(File::Path) >= 2.09
+Requires:		perl(File::Copy) >= 2.26
 Requires:		perl(IO::Handle) >= 1.34
 Requires:		perl(LockFile::Simple) >= 0.208
 Requires:		perl(XML::LibXML) >= 2.0019
