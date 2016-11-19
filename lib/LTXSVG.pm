@@ -1,10 +1,12 @@
 package LTXSVG;
 
-use feature ':5.10';
 use strict;
+use feature ':5.10';
+use utf8;
 use IO::Handle;
 use File::Basename;
 use File::Path;
+use File::Copy;
 use Cwd;
 use XML::LibXML;
 use Digest::MD5;
@@ -13,7 +15,7 @@ use Capture::Tiny;
 use LockFile::Simple;
 #no warnings 'experimental::smartmatch';
 
-our $VERSION='1.4.2';
+our $VERSION='1.5.0';
 
 use constant
 	{
@@ -290,6 +292,11 @@ sub processFile($;$)
 	if(defined $outputName)
 	{
 		$doc->toFile($outputName);
+	}
+	elsif($self->{inplace})
+	{
+		File::Copy::move($inputName, $inputName.$self->{inplace});
+		$doc->toFile($inputName);
 	}
 	else
 	{
@@ -610,6 +617,6 @@ L<zlib/png|http://opensource.org/licenses/Zlib>.
 
 =head1 AUTHOR
 
-Anton Shvetz, L<mailto:tz@sectorb.msk.ru>.
+Anton Shvetz, L<mailto:tz@sectorb.msk.ru?subject=ltxsvg>.
 
 =cut

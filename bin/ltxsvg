@@ -1,9 +1,8 @@
 #!/usr/bin/perl
 
-use warnings;
-
-use feature ':5.10';
 use strict;
+use warnings;
+use feature ':5.10';
 use utf8;
 use LTXSVG;
 use IO::Handle;
@@ -11,7 +10,7 @@ use Getopt::Long qw/:config no_ignore_case bundling/;
 use Exception::Base;
 #no warnings 'experimental::smartmatch';
 
-my (%options, $outputName, $preambleName);
+my (%options, $outputName, $preambleName, $inplace);
 GetOptions(
 	'o|output-file=s'=>\$outputName,
 	'p|preamble-file=s'=>\$preambleName,
@@ -19,6 +18,7 @@ GetOptions(
 	'tex=s'=>\$options{tex},
 	'dvisvgm=s'=>\$options{dvisvgm},
 	'C|clear-cache!'=>\$options{clearCache},
+	'i|inplace=s'=>\$options{inplace},
 	);
 
 my $inputName=shift;
@@ -35,30 +35,33 @@ if(defined $preambleName)
 
 my $ltxsvg=LTXSVG->new(%options);
 $ltxsvg->processFile($inputName, $outputName);
+
+__END__
+
 =pod
 
 =encoding UTF-8
 
 =head1 NAME
 
-ltxsvg - converts LaTeX formulae embedded within XHTML file to SVG format
+ltxsvg - converts LaTeX formulae embedded within XML file to SVG format
 
 =head1 SYNOPSIS
 
-ltxsvg [ I<option>... ] I<input_file>
+ltxsvg I<input_file> [ I<option>... ]
 
 =head1 DESCRIPTION
 
-B<ltxsvg> is intended to be used as preprocessor converting LaTeX formulae
-embedded within XML file to SVG format. The program uses an approach similar to
-one that applied in MetaPost.
+The command-line utility B<ltxsvg> is intended to be used as preprocessor
+converting TeX formulae embedded within XML file to SVG format. The program
+uses an approach similar to one that applied in MetaPost.
 
 The program looks for any occurrence of B<E<lt>mathE<gt>> or
 B<E<lt>displayE<gt>> elements bound to the custom namespace
 B<"https://github.com/urbic/ltxsvg"> in the given XML document. The text
-content of these elements prepended with LaTeX preamble is passed to
-L<tex(1)>. Then the DVI output from L<tex(1)> is passed to L<dvisvgm(1)>.
-The SVG output of L<dvisvgm(1)> replaces the original B<E<lt>mathE<gt>> or
+content of these elements prepended with LaTeX preamble is passed to L<tex(1)>.
+Then the DVI output from L<tex(1)> is passed to L<dvisvgm(1)>.  The SVG output
+of L<dvisvgm(1)> replaces the original B<E<lt>mathE<gt>> or
 B<E<lt>displayE<gt>> element. The program performs some mangling on the B<id>
 attributes in SVG elements to prevent their collisions.
 
@@ -159,6 +162,10 @@ accelerate its rendering in a browser.
 
 =over
 
+=item I<input_file>
+
+The name of the input file to be converted.
+
 =item B<-o>, B<--output-file> I<output_file>
 
 The name of the output file. With no I<output_file> or when I<output_file> is
@@ -192,9 +199,11 @@ The dvisvgm command, default value is B<"dvisvgm">.
 
 Clear cached formulae forcing TeX and dvisvgm to re-run.
 
-=item I<input_file>
+=item B<-i>, B<--inplace> I<suffix>
 
-The name of the input file.
+Perform the conversion in-place, retaining a backup copy whose name is
+constructed as original input file name with the I<suffix> appended to it. This
+option has no effect when B<-o> option was specified.
 
 =back
 
@@ -242,7 +251,11 @@ The name of the input file.
 
 =head1 LIMITATIONS
 
-B<ltxsvg> supports only those TeX engines which works in DVI mode.
+B<ltxsvg> supports only those TeX engines which work in DVI mode and produce
+DVI format 2 output.
+
+B<ltxsvg> fails with B<dviluatex> engine when B<fontspec.sty> or
+B<unicode-math.sty> module is in use. This is due to limitations in L<dvisvgm>.
 
 =head1 FILES
 
@@ -266,6 +279,6 @@ L<zlib/png|http://opensource.org/licenses/Zlib>.
 
 =head1 AUTHOR
 
-Anton Shvetz, L<mailto:tz@sectorb.msk.ru>.
+Anton Shvetz, L<mailto:tz@sectorb.msk.ru?subject=ltxsvg>.
 
 =cut

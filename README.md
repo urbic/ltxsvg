@@ -34,6 +34,8 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 - Caching the rendered formulae.
 
+- In-place conversion
+
 ## Examples
 
 ### XHTML input 
