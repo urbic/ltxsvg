@@ -34,7 +34,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 - Caching the rendered formulae.
 
-- In-place conversion
+- In-place conversion.
 
 ## Examples
 
@@ -58,7 +58,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 …and the result:
 
-![Example 1](examples/example1.png).
+![Example 1](examples/example1.png)
 
 ### SVG input
 
@@ -81,7 +81,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 …and the result:
 
-![Example 2](examples/example2.png).
+![Example 2](examples/example2.png)
 
 
 ### Generic XML input
@@ -95,7 +95,7 @@ browser without use of tools such as [**MathJax**](http://mathjax.org).
 
 …and the result:
 
-![Example 3](examples/example3.png).
+![Example 3](examples/example3.png)
 
 ## Installation
 
@@ -118,7 +118,7 @@ Service](https://software.opensuse.org/download.html?project=home%3Aconcyclic&pa
 
 ## License
 
-[zlib/png](LICENSE).
+[zlib/png](LICENSE)
 
 ## Author
 
