@@ -15,7 +15,7 @@ use Capture::Tiny;
 use LockFile::Simple;
 #no warnings 'experimental::smartmatch';
 
-our $VERSION='1.5.0';
+our $VERSION='1.5.1';
 
 use constant
 	{
@@ -355,8 +355,10 @@ sub _wrapForXHTML($$;%)
 	my %css=($display eq 'block')?
 		(
 			'display'=>'block',
-			'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}),
-			'margin-bottom'=>sprintf('%.5fem', 1.2*$self->{scale}),
+			'margin-top'=>sprintf('%.5fem', 1.2*$self->{scale}-$vOffset),
+			'position'=>'relative',
+			'margin-bottom'=>sprintf('%.5fem', 1.2*$self->{scale}+$vOffset),
+			'bottom'=>sprintf('%.5fem', -$vOffset),
 			'text-align'=>'center',
 		):
 		(
